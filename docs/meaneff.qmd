@@ -1,0 +1,116 @@
+---
+title: Mean effects in MZ-GWAS
+author: Gibran Hemani
+date: 2023-02-01
+---
+
+
+```{r}
+library(dplyr)
+library(data.table)
+library(here)
+```
+
+```{r}
+dep <- fread(here("data/Depression_M1_forFUMA.txt.gz"), he=T)
+deprsid <- scan(here("data/depsnps.txt"), what="character")
+dep
+```
+
+```{r}
+subset(dep, SNP %in% deprsid)$P %>% p.adjust(., method="fdr") %>% {table(. < 0.05)}
+```
+
+```{r}
+subset(dep, SNP %in% deprsid)$P %>% {table(. < 0.05)}
+```
+
+effective N
+
+
+```{r}
+deps <- dep %>% filter(MAF > 0.2 & MAF < 0.8) %>% sample_n(100000)
+summary(lm(I(1/SE^2) ~ I(2 * MAF * (1-MAF)), data=deps))
+```
+
+```{r}
+n <- 1/(deps$SE^2 * 2 * deps$MAF * (1-deps$MAF))
+plot(deps$N ~ n)
+summary(lm(n ~ deps$N))
+```
+
+```{r}
+min(dep$P)
+```
+
+```{r}
+library(ieugwasr)
+tophits("ebi-a-GCST005902")
+rsid <- dep$SNP[which.min(dep$P)]
+associations(rsid, "ebi-a-GCST005902")
+```
+
+
+
+```{r}
+n <- 10000
+g <- rbinom(n, 2, 0.3)
+y <- rnorm(n)
+se <- summary(lm(y ~ g))$coef[2,2]
+se^2
+1/(var(g)*n)
+
+
+```
+
+
+```{r}
+tophits("ieu-a-1009")
+```
+
+
+```{r}
+tophits("finn-b-F5_ALLANXIOUS")
+tophits("ukb-b-11311")
+tophits("ukb-b-17243")
+tophits("ukb-d-KRA_PSY_ANXIETY")
+```
+
+
+```{r}
+anxiety <- fread(here("data/Anxiety_M1_adults_forFUMA.txt.gz"), he=T)
+anxrsid <- c("rs4603973", "rs4390955", "rs6557168", "rs12023347", "rs56226325", "rs6090040")
+```
+
+```{r}
+subset(anxiety, SNP %in% anxrsid) %>% {p.adjust(.$P, "fdr")}
+```
+
+
+Lookup top vQTLs for additive effects
+
+Wellbeing:
+
+```{r}
+b <- phewas("rs2940988", pval=0.05, batch="ukb-b")
+gwasinfo(b$id) %>% dplyr::select(id, trait) %>% inner_join(., b %>% dplyr::select(id, p))
+```
+
+
+Depression:
+
+```{r}
+b <- phewas("rs2846074", pval=0.05, batch="ukb-b")
+gwasinfo(b$id) %>% dplyr::select(id, trait) %>% inner_join(., b %>% dplyr::select(id, p))
+```
+
+Anxiety
+
+```{r}
+b <- phewas("rs60358762", pval=0.05, batch="ukb-b")
+gwasinfo(b$id) %>% dplyr::select(id, trait) %>% inner_join(., b %>% dplyr::select(id, p))
+```
+
+
+
+
