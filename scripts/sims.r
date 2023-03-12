@@ -4,7 +4,7 @@ library(tidyr)
 library(simulateGP)
 library(here)
 library(parallel)
-mc.cores <- 1
+mc.cores <- 2
 
 
 sim_pop <- function(n, beta1, beta2, af, h2)
@@ -40,29 +40,26 @@ test_drm <- function(g, y)
 {
   y.i <- tapply(y, g, median, na.rm=T)  
   z.ij <- abs(y - y.i[g+1])
-  summary(lm(z.ij ~ g))$coef %>%
+  fast_assoc(z.ij, g) %>%
     as_tibble() %>%
-    slice(2) %>%
     mutate(method="drm")
 }
 
 test_mz <- function(g, y1, y2)
 {
   yd1 <- abs(y1-y2)
-  r1 <- summary(lm(yd1 ~ g))$coef %>%
+  r1 <- fast_assoc(yd1, g) %>%
     as_tibble() %>%
-    slice(2) %>%
     mutate(method="mzdiff")
   r1
 }
 
 param <- expand.grid(
     beta1 = 0,
-    beta2 = seq(0, 0.5, by=0.01),
-    h2 = c(0.1, 0.9),
+    beta2 = 0.115,
+    h2 = seq(0.05, 0.95, by=0.05),
     af = 0.3,
-    n = 10000,
-    rep=1:500
+    rep=1:1000
 )
 dim(param)
 
@@ -81,47 +78,73 @@ res1 <- mclapply(1:nrow(param), function(i)
 }, mc.cores=mc.cores) %>%
   bind_rows()
 
-p1 <- res1 %>% filter(n==10000) %>%
-group_by(beta2, h2, method) %>%
-summarise(pow = sum(`Pr(>|t|)` < 5e-8)/n()) %>%
+p1 <- res1 %>%
+group_by(beta2, method) %>%
+summarise(pow = sum(pval < 5e-8)/n()) %>%
+mutate(method = case_when(method == "drm" ~ "Population", TRUE ~ "MZ")) %>%
 ggplot(., aes(x=beta2, y=pow)) +
   geom_line(aes(colour=method)) +
   geom_point(aes(colour=method)) +
-  facet_wrap(~ h2)
+  labs(y="vQTL discovery power", x="Narrow sense heritability", colour="Design")
+p1
 ggsave(p1, file=here("images/pow_equaln.pdf"))
 
-param <- expand.grid(
-    beta1 = 0,
-    beta2 = seq(0, 0.5, by=0.01),
-    h2 = c(0.1, 0.9),
-    af = 0.3,
-    rep=1:500
-)
-dim(param)
-
-res2 <- lapply(1:nrow(param), function(i)
+res2 <- mclapply(1:nrow(param), function(i)
   {
   a1 <- do.call(sim_mz, param[i,] %>% mutate(n=10000) %>% select(-c(rep)))
   a2 <- do.call(sim_mz, param[i,] %>% mutate(n=500000) %>% select(-c(rep)))
+  a3 <- do.call(sim_mz, param[i,] %>% mutate(n=20000) %>% select(-c(rep)))
   if(any(is.na(a1$y1)) | any(is.na(a1$y2)) | any(is.na(a2$y1)) | any(is.na(a2$y2)))
   {
     return(NULL)
   }
   bind_rows(
     test_mz(a1$g, a1$y1, a1$y2),
-    test_drm(a2$g, a2$y1)
+    test_drm(a2$g, a2$y1),
+    test_drm(a3$g, a3$y1)
   ) %>%
     bind_cols(., param[i,])
 }, mc.cores=mc.cores) %>%
   bind_rows()
 
-p2 <- res2 %>%
-group_by(beta2, h2, method) %>%
-summarise(pow = sum(`Pr(>|t|)` < 5e-8)/n()) %>%
-ggplot(., aes(x=beta2, y=pow)) +
-  geom_line(aes(colour=method, linetype=as.factor(h2))) +
-  geom_point(aes(colour=method, linetype=as.factor(h2)))
-ggsave(p2, file=here("images/pow_diffn.pdf"))
+param <- expand.grid(
+    beta1 = 0,
+    beta2 = 0.115,
+    h2 = seq(0.05, 0.95, by=0.05),
+    af = 0.3,
+    rep=1001:10000
+)
+dim(param)
+
+res2a <- mclapply(1:nrow(param), function(i)
+  {
+  a1 <- do.call(sim_mz, param[i,] %>% mutate(n=10000) %>% select(-c(rep)))
+  a3 <- do.call(sim_mz, param[i,] %>% mutate(n=20000) %>% select(-c(rep)))
+  if(any(is.na(a1$y1)) | any(is.na(a1$y2)) | any(is.na(a3$y1)) | any(is.na(a3$y2)))
+  {
+    return(NULL)
+  }
+  bind_rows(
+    test_mz(a1$g, a1$y1, a1$y2),
+    test_drm(a3$g, a3$y1)
+  ) %>%
+    bind_cols(., param[i,])
+}, mc.cores=mc.cores) %>%
+  bind_rows()
+
+p2 <- bind_rows(res2, res2a) %>%
+group_by(h2, method, n) %>%
+summarise(pow = sum(pval < 5e-2)/n()) %>%
+mutate(method = case_when(method == "drm" ~ paste0("Population, n = ", n/1000, "k"), TRUE ~ paste0("MZ pairs, n = ", n/1000, "k"))) %>%
+ggplot(., aes(x=h2, y=pow)) +
+  geom_line(aes(colour=method)) +
+  geom_point(aes(colour=method)) +
+  labs(y="vQTL discovery power", x="Narrow sense heritability", colour="Design") +
+  scale_colour_brewer(type="qual")
+p2
+ggsave(p2, file=here("images/pow_diffn.pdf"), height=6, width=11)
+
+
 
 sim_mz2 <- function(g, beta1, beta2, h2)
 {
@@ -205,11 +228,13 @@ resmz %>% str
 
 p3 <- resmz %>% 
   dplyr::select(r1, MZ=mz2, pop=drm2) %>% gather(., "key", "value", MZ, pop) %>%
+  mutate(key = case_when(key == "pop" ~ "Population", TRUE ~ "MZ")) %>%
   ggplot(., aes(x=r1, y=-log10(value))) +
   geom_boxplot(aes(fill=as.factor(r1))) +
   scale_fill_brewer(type="seq") +
   facet_grid(. ~ key) +
-  labs(y="MZ dispersion -log10 p", x="LD between tagging\nvariant and causal variant", fill="LD")
-ggsave(p3, file=here("results/inflation.pdf"))
+  labs(y="vQTL -log10 p under the null", x="LD between tagging\nvariant and causal variant", fill="LD")
+p3
+ggsave(p3, file=here("images/inflation.pdf"), height=6, width=11)
 
-save(resmz, res1, res2, file=here("results/sim.rdata"))
+save(resmz, res1, res2, res2a, file=here("images/sim.rdata"))
