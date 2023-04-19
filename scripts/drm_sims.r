@@ -87,6 +87,8 @@ res <- mclapply(1:nrow(param), function(i)
     sim_full(param$rsq[i], geno, param$n[i], cormat)
 }) %>% bind_rows
 
+save(res, file="drm_sims.rdata")
+
 o <- sim_full(0.5, geno, 500, cormat)
 o %>% ggplot(., aes(x=ldrsq, y = -log10(pval))) +
 geom_point() +
