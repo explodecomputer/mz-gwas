@@ -9,6 +9,8 @@ date: 2023-02-01
 library(dplyr)
 library(data.table)
 library(here)
+library(ieugwasr)
+library(ggplot2)
 ```
 
 ```{r}
@@ -44,10 +46,85 @@ min(dep$P)
 ```
 
 ```{r}
-library(ieugwasr)
-tophits("ebi-a-GCST005902")
+gwasinfo("ebi-a-GCST005902")
+dep_hits <- tophits("ebi-a-GCST005902", pval=1e-5, clump=TRUE)
 rsid <- dep$SNP[which.min(dep$P)]
 associations(rsid, "ebi-a-GCST005902")
+```
+
+
+```{r}
+fixed_effects_meta_analysis <- function(beta_vec, se_vec) {
+    w <- 1 / se_vec^2
+    beta <- sum(beta_vec * w, na.rm=T) / sum(w, na.rm=T)
+    se <- sqrt(1 / sum(w, na.rm=T))
+    pval <- pnorm(abs(beta / se), lower.tail = FALSE)
+    Qj <- w * (beta-beta_vec)^2
+    Q <- sum(Qj, na.rm=T)
+    Qdf <- sum(!is.na(beta_vec))-1
+    if(Qdf == 0) Q <- 0
+    Qjpval <- pchisq(Qj, 1, lower.tail=FALSE)
+    Qpval <- pchisq(Q, Qdf, lower.tail=FALSE)
+    return(list(beta=beta, se=se, Q=Q, Qdf=Qdf, Qpval=Qpval, Qj=Qj, Qjpval=Qjpval))
+}
+
+fixed_effects_meta_analysis(dep_hits$beta, dep_hits$se)
+
+```
+
+```{r}
+dep$A1 <- toupper(dep$A1)
+dep$A2 <- toupper(dep$A2)
+deps_m <- subset(dep, SNP %in% dep_hits$rsid)
+temp <- inner_join(deps_m, dep_hits, by=c("SNP"="rsid"))
+temp$switch <- temp$ea != temp$A1
+temp$BETA[temp$switch] <- temp$BETA[temp$switch] * -1
+plot(temp$BETA, temp$beta)
+# temp$switch2 <- temp$beta < 0
+# temp$BETA[temp$switch2] <- temp$BETA[temp$switch2] * -1
+# temp$beta <- abs(temp$beta)
+ggplot(temp, aes(x=beta, y=BETA)) +
+geom_point() +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE)) +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se)) +
+geom_smooth(method="lm") +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate")
+ggsave(here("images", "depression_main_mz.pdf"))
+summary(lm(BETA ~ -1 + beta, temp, weight=1/temp$SE^2))
+```
+
+
+```{r}
+dep_hits2 <- tophits("ebi-a-GCST005902", pval=1e-5, clump=TRUE)
+deps_m2 <- subset(dep, SNP %in% dep_hits2$rsid)
+temp2 <- inner_join(deps_m2, dep_hits2, by=c("SNP"="rsid"))
+temp2$switch <- temp2$ea != temp2$A1
+temp2$BETA[temp2$switch] <- temp2$BETA[temp2$switch] * -1
+ggplot(temp2, aes(x=beta, y=BETA)) +
+geom_point() +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE)) +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se)) +
+geom_smooth(method="lm") +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate")
+
+summary(lm(BETA ~ -1 + beta, temp2, weight=1/temp2$SE^2))
+```
+
+
+```{r}
+depsnps <- scan(here("data", "depsnps.txt"))
+a <- associations(depsnps, "ebi-a-GCST005902")
+deps_m3 <- subset(dep, SNP %in% a$rsid)
+temp3 <- inner_join(deps_m3, a, by=c("SNP"="rsid"))
+temp3$switch <- temp3$ea != temp3$A1
+temp3$BETA[temp3$switch] <- temp3$BETA[temp3$switch] * -1
+ggplot(temp3, aes(x=beta, y=BETA)) +
+geom_point() +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE)) +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se)) +
+geom_smooth(method="lm") +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate")
+
 ```
 
 
@@ -59,8 +136,6 @@ y <- rnorm(n)
 se <- summary(lm(y ~ g))$coef[2,2]
 se^2
 1/(var(g)*n)
-
-
 ```
 
 
@@ -110,6 +185,167 @@ Anxiety
 b <- phewas("rs60358762", pval=0.05, batch="ukb-b")
 gwasinfo(b$id) %>% dplyr::select(id, trait) %>% inner_join(., b %>% dplyr::select(id, p))
 ```
+
+
+
+
+```{r}
+n <- 10000
+a <- rnorm(n)
+b <- rnorm(n)
+x <- a * 3 + b
+pred <- x * 0.3 + rnorm(n)
+y <- rbinom(n, 1, plogis(pred))
+bpred <- residuals(lm(x ~ a))
+summary(glm(y ~ x, family="binomial"))
+```
+
+```{r}
+summary(glm(y ~ bpred, family="binomial"))
+```
+
+```{r}
+summary(glm(y ~ b, family="binomial"))
+```
+
+```{r}
+summary(glm(y ~ a, family="binomial"))
+```
+
+
+```{r}
+n <- 10000
+b <- 0.3
+b1 <- -2
+b2 <- 2
+g <- rnorm(n)
+e <- rnorm(n)
+
+x <- g * b1 + e * b2
+
+#liability for y
+pred <- x * b + rnorm(n)
+
+# observed y
+y <- rbinom(n, 1, plogis(pred))
+
+epred <- residuals(lm(x ~ g))
+lm(e ~ epred)
+summary(lm(pred ~ x))$coef[2,1]
+summary(lm(pred ~ epred))$coef[2,1]
+summary(lm(pred ~ e))$coef[2,1]
+summary(lm(pred ~ g))$coef[2,1]
+```
+
+```{r}
+(b * b1^2 * var(g) + b * b2^2 * var(e)) / var(x)
+```
+
+```{r}
+b * b1^2 * var(e) / var(epred)
+```
+
+
+```{r}
+var(epred)
+```
+
+g-e equivalence
+g and e have different effects
+
+```{r}
+n <- 100000
+h2 <- 0.7
+b_ey <- 1
+b_gy <- 1
+
+g <- rnorm(n)
+e <- rnorm(n)
+
+x <- g * sqrt(h2) + e * (sqrt(1-h2))
+
+#liability for y
+pred <- g * b_gy + e * b_ey + rnorm(n)
+
+# observed y
+y <- rbinom(n, 1, plogis(pred))
+table(y)
+```
+
+
+```{r}
+summary(lm(pred ~ x))$coef[2,1]
+```
+
+
+```{r}
+b_ey * sqrt(1-h2) + b_gy * sqrt(h2)
+```
+
+```{r}
+summary(lm(pred ~ e))$coef[2,1]
+summary(lm(pred ~ g))$coef[2,1]
+```
+
+
+```{r}
+epred <- tibble(
+  epred1 = residuals(lm(x ~ g)),
+  epred2 = x-g,
+  epred3 = x - g*sqrt(h2),
+  epred4 = epred3 / sqrt(1-h2),
+  e = e,
+  g = g,
+  x = x
+)
+
+fn <- function(x,y,...)
+{
+  points(x,y,...)
+  abline(a=0,b=1,col="red")
+}
+
+pairs(epred[1:1000,], upper.panel=fn, lower.panel=fn)
+
+var(epred)
+epred2 <- x-g
+lm(epred2 ~ epred)
+cor(epred2, epred)
+cor(x, epred2)
+plot(epred, x)
+summary(lm(x ~ epred))$coef[2,1]
+summary(lm(pred ~ x))
+summary(lm(pred ~ epred$epred1))$coef[2,1]
+```
+
+
+## Variance effect
+
+https://link.springer.com/article/10.1007/s10519-010-9362-0 discusses that environmental sensitivity can change variance of environment without changing mean of environment by genotype
+
+
+```{r}
+n <- 10000
+g <- rbinom(n, 2, 0.2)
+e1 <- rnorm(n)
+e2 <- rnorm(n)
+b1 <- 0
+b2 <- 0.5
+v1 <- rnorm(n, 0, b2*g)
+v2 <- rnorm(n, 0, b2*g)
+y1 <- g * b1 + e1 + v1
+y2 <- g * b2 + e2 + v2
+
+
+
+```
+
+
+
+
+
+##
+
 
 
 
