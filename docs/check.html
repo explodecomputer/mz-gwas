@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.549">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Gibran Hemani">
+
+<title>Checking MZ difference model</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="check_files/libs/clipboard/clipboard.min.js"></script>
+<script src="check_files/libs/quarto-html/quarto.js"></script>
+<script src="check_files/libs/quarto-html/popper.min.js"></script>
+<script src="check_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="check_files/libs/quarto-html/anchor.min.js"></script>
+<link href="check_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="check_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="check_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="check_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="check_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Checking MZ difference model</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Gibran Hemani </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<ul>
+<li>Check that mean effects can’t influence MZ dif effects</li>
+<li>That the MZ difference model works for binary traits</li>
+</ul>
+<p>Simulate data</p>
+<ul>
+<li><code>g1</code> = main effect on y</li>
+<li><code>g2</code> = GxE effect with no main effect on y, with an interaction with normally distributed <code>f</code> variable</li>
+<li><code>g3</code> = Effect on variance of y</li>
+<li><code>g4</code> = Null</li>
+<li><code>y</code> - continuous variable</li>
+<li><code>cc</code> - <code>y</code> converted to a binary variable</li>
+<li><code>cs</code> - <code>cc</code> scaled to have mean 0 and variance 1</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">fid =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>(n<span class="sc">/</span><span class="dv">2</span>), <span class="at">each=</span><span class="dv">2</span>), <span class="co"># family id</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, n<span class="sc">/</span><span class="dv">2</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">g1 =</span> <span class="fu">rbinom</span>(n<span class="sc">/</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="fl">0.4</span>) <span class="sc">%&gt;%</span> <span class="fu">rep</span>(., <span class="at">each=</span><span class="dv">2</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">g2 =</span> <span class="fu">rbinom</span>(n<span class="sc">/</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="fl">0.4</span>) <span class="sc">%&gt;%</span> <span class="fu">rep</span>(., <span class="at">each=</span><span class="dv">2</span>),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">g3 =</span> <span class="fu">rbinom</span>(n<span class="sc">/</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="fl">0.4</span>) <span class="sc">%&gt;%</span> <span class="fu">rep</span>(., <span class="at">each=</span><span class="dv">2</span>),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">g4 =</span> <span class="fu">rbinom</span>(n<span class="sc">/</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="fl">0.4</span>) <span class="sc">%&gt;%</span> <span class="fu">rep</span>(., <span class="at">each=</span><span class="dv">2</span>),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">f =</span> <span class="fu">rnorm</span>(n),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">v =</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, g3),</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="dv">10</span> <span class="sc">+</span> g1 <span class="sc">+</span> f <span class="sc">+</span> f <span class="sc">*</span> <span class="fu">drop</span>(<span class="fu">scale</span>(g2)) <span class="sc">+</span> v <span class="sc">+</span> <span class="fu">rnorm</span>(n),</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">yr =</span> <span class="fu">round</span>(y),</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">cc =</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, <span class="fu">plogis</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">+</span> y)),</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">cs =</span> <span class="fu">drop</span>(<span class="fu">scale</span>(cc))</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>dat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 100,000 × 12
+     fid    id    g1    g2    g3    g4      f       v     y    yr    cc     cs
+   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;  &lt;dbl&gt;
+ 1     1     1     1     0     0     2 -0.691  0      10.7     11     1 0.0490
+ 2     1     2     1     0     0     2 -0.381  0      10.7     11     1 0.0490
+ 3     2     1     2     0     0     0  0.319  0      11.9     12     1 0.0490
+ 4     2     2     2     0     0     0 -0.416  0      12.8     13     1 0.0490
+ 5     3     1     1     0     1     1  0.931 -0.977  10.2     10     1 0.0490
+ 6     3     2     1     0     1     1 -0.484 -0.0960 11.2     11     1 0.0490
+ 7     4     1     1     0     1     1 -0.665  0.685  11.8     12     1 0.0490
+ 8     4     2     1     0     1     1  0.361 -1.54    8.90     9     1 0.0490
+ 9     5     1     1     1     0     0  0.842  0      10.8     11     1 0.0490
+10     5     2     1     1     0     0 -1.32   0       9.91    10     1 0.0490
+# ℹ 99,990 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(dat<span class="sc">$</span>y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 10.80497</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(dat<span class="sc">$</span>y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4.609807</code></pre>
+</div>
+</div>
+<p>Create MZ data</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>dat2 <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(fid) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">g1 =</span> g1[<span class="dv">1</span>], </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">g2 =</span> g2[<span class="dv">1</span>], </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">g3 =</span> g3[<span class="dv">1</span>], </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">g4 =</span> g4[<span class="dv">1</span>], </span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">y2 =</span> (y[<span class="dv">1</span>]<span class="sc">+</span>y[<span class="dv">2</span>])<span class="sc">^</span><span class="dv">2</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> y[<span class="dv">1</span>]<span class="sc">-</span>y[<span class="dv">2</span>], </span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">yrabs =</span> <span class="fu">abs</span>(yr[<span class="dv">1</span>]<span class="sc">-</span>yr[<span class="dv">2</span>]), </span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">yabs=</span><span class="fu">abs</span>(y), </span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">cc=</span>cc[<span class="dv">1</span>]<span class="sc">-</span>cc[<span class="dv">2</span>], </span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">cm =</span> <span class="fu">mean</span>(cc),</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">ccabs=</span><span class="fu">abs</span>(cc),</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">cs2=</span>(cs[<span class="dv">1</span>]<span class="sc">-</span>cs[<span class="dv">2</span>])<span class="sc">^</span><span class="dv">2</span>,</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">cs=</span>cs[<span class="dv">1</span>]<span class="sc">-</span>cs[<span class="dv">2</span>], </span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">csabs=</span><span class="fu">abs</span>(cs)</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>dat2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 50,000 × 15
+     fid    g1    g2    g3    g4    y2       y yrabs   yabs    cc    cm ccabs
+   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;int&gt;
+ 1     1     1     0     0     2  459.  0.0299     0 0.0299     0     0     0
+ 2     2     2     0     0     0  611. -0.816      1 0.816      0     0     0
+ 3     3     1     0     1     1  459. -1.02       1 1.02       0     0     0
+ 4     4     1     0     1     1  429.  2.90       3 2.90       0     0     0
+ 5     5     1     1     0     0  429.  0.904      1 0.904      0     0     0
+ 6     6     1     0     2     1  435. -3.17       3 3.17       0     0     0
+ 7     7     2     0     0     0  516.  2.38       3 2.38       0     0     0
+ 8     8     0     1     1     1  569. -3.67       4 3.67       0     0     0
+ 9     9     1     0     0     1  440.  0.722      1 0.722      0     0     0
+10    10     1     0     2     1  566.  3.74       4 3.74       0     0     0
+# ℹ 49,990 more rows
+# ℹ 3 more variables: cs2 &lt;dbl&gt;, cs &lt;dbl&gt;, csabs &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>This creates the following potential dependent variables for the regression.</p>
+<ul>
+<li><code>y</code> which is the difference in <code>y</code> between the two MZ twins (as stated in the equation in the paper)</li>
+<li><code>yabs</code> which is the absolute difference in <code>y</code> between the two MZ twins</li>
+<li><code>cc</code> which is the difference in <code>cc</code> between the two MZ twins</li>
+<li><code>ccabs</code> which is the absolute difference in <code>cc</code> between the two MZ twins</li>
+<li><code>cs</code> which is the difference in the scaled binary variable between the two MZ twins</li>
+<li><code>cs2</code> which is the squared difference in the scaled binary variable between the two MZ twins</li>
+</ul>
+<p><code>cm</code> is also generated - the mean of <code>cc</code> for the MZ twins. This is the covariate used in model 2 according to the methods in the paper.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> <span class="cf">function</span>(f, dat, what) {</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    fo <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(f)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    o <span class="ot">&lt;-</span> <span class="fu">lm</span>(fo, <span class="at">data=</span>dat) <span class="sc">%&gt;%</span> <span class="fu">summary</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">coef</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">slice_tail</span>(<span class="at">n=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">what=</span>what, <span class="at">f=</span>f)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames</span>(o) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(o) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"est"</span>, <span class="st">"se"</span>, <span class="st">"t"</span>, <span class="st">"p"</span>, <span class="st">"what"</span>, <span class="st">"f"</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    o <span class="sc">%&gt;%</span> <span class="fu">select</span>(what, f, est, se, p)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>o <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g1"</span>, dat, <span class="st">"pop"</span>),</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g2"</span>, dat, <span class="st">"pop"</span>),</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g3"</span>, dat, <span class="st">"pop"</span>),</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g4"</span>, dat, <span class="st">"pop"</span>),</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"y ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"y ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"y ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"y ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yrabs ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yrabs ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yrabs ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yrabs ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g1 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g2 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g3 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g4 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cs ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cs ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cs ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cs ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"csabs ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"csabs ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"csabs ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"csabs ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cs2 ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cs2 ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cs2 ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cs2 ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g1 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g2 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g3 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g4 + cm"</span>, dat2, <span class="st">"mz"</span>)</span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>o <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">log10p=</span><span class="sc">-</span><span class="fu">log10</span>(p)) <span class="sc">%&gt;%</span> <span class="fu">select</span>(what, f, log10p)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   what               f      log10p
+1   pop         cc ~ g1 10.61640900
+2   pop         cc ~ g2 64.20430595
+3   pop         cc ~ g3  9.97417070
+4   pop         cc ~ g4  0.04261380
+5    mz          y ~ g1  0.58163754
+6    mz          y ~ g2  0.05102752
+7    mz          y ~ g3  0.42624996
+8    mz          y ~ g4  0.01516018
+9    mz       yabs ~ g1  0.04428153
+10   mz       yabs ~ g2         Inf
+11   mz       yabs ~ g3         Inf
+12   mz       yabs ~ g4  0.51100284
+13   mz      yrabs ~ g1  0.16804846
+14   mz      yrabs ~ g2         Inf
+15   mz      yrabs ~ g3         Inf
+16   mz      yrabs ~ g4  0.67678127
+17   mz  yabs ~ g1 + cm  2.74230315
+18   mz  yabs ~ g2 + cm  2.35387626
+19   mz  yabs ~ g3 + cm  2.50035641
+20   mz  yabs ~ g4 + cm  2.73715145
+21   mz         cc ~ g1  0.46122868
+22   mz         cc ~ g2  0.72641466
+23   mz         cc ~ g3  0.58998027
+24   mz         cc ~ g4  0.29218903
+25   mz      ccabs ~ g1  9.92828941
+26   mz      ccabs ~ g2 63.54643712
+27   mz      ccabs ~ g3  8.88219725
+28   mz      ccabs ~ g4  0.15324049
+29   mz         cs ~ g1  0.46122868
+30   mz         cs ~ g2  0.72641466
+31   mz         cs ~ g3  0.58998027
+32   mz         cs ~ g4  0.29218903
+33   mz      csabs ~ g1  9.92828941
+34   mz      csabs ~ g2 63.54643712
+35   mz      csabs ~ g3  8.88219725
+36   mz      csabs ~ g4  0.15324049
+37   mz        cs2 ~ g1  9.92828941
+38   mz        cs2 ~ g2 63.54643712
+39   mz        cs2 ~ g3  8.88219725
+40   mz        cs2 ~ g4  0.15324049
+41   mz ccabs ~ g1 + cm 20.62645845
+42   mz ccabs ~ g2 + cm 20.19605264
+43   mz ccabs ~ g3 + cm 20.38391126
+44   mz ccabs ~ g4 + cm 20.49219040</code></pre>
+</div>
+</div>
+<p>Observations</p>
+<ul>
+<li>The MZ difference model does not work for the difference of <code>y</code></li>
+<li>The MZ difference model works for continuous traits as expected when using the <strong>absolute</strong> difference in the trait (<code>yabs</code>). i.e.
+<ul>
+<li>The main effect does not associate with MZ dif</li>
+<li>The GxE effect does associate with MZ dif</li>
+<li>The variance effect does associate with MZ dif</li>
+</ul></li>
+<li>The MZ difference model does not work for the difference of the binary trait <code>cc</code></li>
+<li>Using the absolute difference in the binary trait (<code>ccabs</code>)
+<ul>
+<li>Picks up the GxE effect and the variance effect</li>
+<li><strong>But it also picks up the main effect which it is not supposed to do</strong></li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>reg2 <span class="ot">&lt;-</span> <span class="cf">function</span>(f, dat, what) {</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    fo <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(f)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    o <span class="ot">&lt;-</span> <span class="fu">glm</span>(fo, <span class="at">data=</span>dat, <span class="at">family=</span><span class="st">"binomial"</span>) <span class="sc">%&gt;%</span> <span class="fu">summary</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">coef</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">slice_tail</span>(<span class="at">n=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">what=</span>what, <span class="at">f=</span>f)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames</span>(o) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(o) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"est"</span>, <span class="st">"se"</span>, <span class="st">"t"</span>, <span class="st">"p"</span>, <span class="st">"what"</span>, <span class="st">"f"</span>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    o <span class="sc">%&gt;%</span> <span class="fu">select</span>(what, f, est, se, p)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>o <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g1 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g2 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g3 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g4 + cm"</span>, dat2, <span class="st">"mz"</span>)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>o <span class="sc">%&gt;%</span> <span class="fu">select</span>(what, f, p) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">p=</span><span class="sc">-</span><span class="fu">log10</span>(p))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  what               f          p
+1   mz      ccabs ~ g1  9.5914954
+2   mz      ccabs ~ g2 50.7438327
+3   mz      ccabs ~ g3  8.6734107
+4   mz      ccabs ~ g4  0.1532354
+5   mz ccabs ~ g1 + cm 16.4382730
+6   mz ccabs ~ g2 + cm  8.8970854
+7   mz ccabs ~ g3 + cm 16.0637127
+8   mz ccabs ~ g4 + cm 18.0112859</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(y <span class="sc">~</span> f <span class="sc">*</span> g2, dat))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = y ~ f * g2, data = dat)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-8.7028 -1.0262 -0.0099  1.0182  9.3203 
+
+Coefficients:
+             Estimate Std. Error  t value Pr(&gt;|t|)    
+(Intercept) 10.791954   0.007786 1386.157   &lt;2e-16 ***
+f           -0.145372   0.007794  -18.651   &lt;2e-16 ***
+g2           0.006641   0.007362    0.902    0.367    
+f:g2         1.434294   0.007338  195.459   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.611 on 99996 degrees of freedom
+Multiple R-squared:  0.4371,    Adjusted R-squared:  0.4371 
+F-statistic: 2.589e+04 on 3 and 99996 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(dat<span class="sc">$</span>y, dat<span class="sc">$</span>g2, var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        0         1         2 
+ 2.617342  4.262818 10.154462 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(dat<span class="sc">$</span>y, dat<span class="sc">$</span>g3, var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       0        1        2 
+3.484681 4.453324 7.668576 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(dat2<span class="sc">$</span>yabs, dat2<span class="sc">$</span>g2, mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       0        1        2 
+1.588200 2.165920 3.516544 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(dat2<span class="sc">$</span>yabs, dat2<span class="sc">$</span>g3, mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       0        1        2 
+1.811049 2.172747 3.007273 </code></pre>
+</div>
+</div>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

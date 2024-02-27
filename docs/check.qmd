@@ -1,0 +1,192 @@
+---
+title: Checking MZ difference model
+author: Gibran Hemani
+---
+
+- Check that mean effects can't influence MZ dif effects
+- That the MZ difference model works for binary traits
+
+Simulate data
+
+- `g1` = main effect on y
+- `g2` = GxE effect with no main effect on y, with an interaction with normally distributed `f` variable
+- `g3` = Effect on variance of y
+- `g4` = Null
+- `y` - continuous variable
+- `cc` - `y` converted to a binary variable
+- `cs` - `cc` scaled to have mean 0 and variance 1
+
+```{r}
+library(dplyr)
+n <- 100000
+dat <- tibble(
+    fid = rep(1:(n/2), each=2), # family id
+    id = rep(1:2, n/2),
+    g1 = rbinom(n/2, 2, 0.4) %>% rep(., each=2),
+    g2 = rbinom(n/2, 2, 0.4) %>% rep(., each=2),
+    g3 = rbinom(n/2, 2, 0.4) %>% rep(., each=2),
+    g4 = rbinom(n/2, 2, 0.4) %>% rep(., each=2),
+    f = rnorm(n),
+    v = rnorm(n, 0, g3),
+    y = 10 + g1 + f + f * drop(scale(g2)) + v + rnorm(n),
+    yr = round(y),
+    cc = rbinom(n, 1, plogis(-2 + y)),
+    cs = drop(scale(cc))
+)
+dat
+```
+
+
+```{r}
+mean(dat$y)
+var(dat$y)
+```
+
+Create MZ data
+
+```{r}
+dat2 <- dat %>% 
+    group_by(fid) %>% 
+    summarise(
+        g1 = g1[1], 
+        g2 = g2[1], 
+        g3 = g3[1], 
+        g4 = g4[1], 
+        y2 = (y[1]+y[2])^2,
+        y = y[1]-y[2], 
+        yrabs = abs(yr[1]-yr[2]), 
+        yabs=abs(y), 
+        cc=cc[1]-cc[2], 
+        cm = mean(cc),
+        ccabs=abs(cc),
+        cs2=(cs[1]-cs[2])^2,
+        cs=cs[1]-cs[2], 
+        csabs=abs(cs)
+    )
+dat2
+```
+
+This creates the following potential dependent variables for the regression.
+
+- `y` which is the difference in `y` between the two MZ twins (as stated in the equation in the paper)
+- `yabs` which is the absolute difference in `y` between the two MZ twins
+- `cc` which is the difference in `cc` between the two MZ twins
+- `ccabs` which is the absolute difference in `cc` between the two MZ twins
+- `cs` which is the difference in the scaled binary variable between the two MZ twins
+- `cs2` which is the squared difference in the scaled binary variable between the two MZ twins
+
+`cm` is also generated - the mean of `cc` for the MZ twins. This is the covariate used in model 2 according to the methods in the paper.
+
+
+```{r}
+reg <- function(f, dat, what) {
+    fo <- as.formula(f)
+    o <- lm(fo, data=dat) %>% summary() %>% 
+        coef() %>% 
+        as.data.frame() %>%
+        slice_tail(n=1) %>%
+        mutate(what=what, f=f)
+    rownames(o) <- NULL
+    names(o) <- c("est", "se", "t", "p", "what", "f")
+    o %>% select(what, f, est, se, p)
+}
+
+o <- bind_rows(
+    reg("cc ~ g1", dat, "pop"),
+    reg("cc ~ g2", dat, "pop"),
+    reg("cc ~ g3", dat, "pop"),
+    reg("cc ~ g4", dat, "pop"),
+    reg("y ~ g1", dat2, "mz"),
+    reg("y ~ g2", dat2, "mz"),
+    reg("y ~ g3", dat2, "mz"),
+    reg("y ~ g4", dat2, "mz"),
+    reg("yabs ~ g1", dat2, "mz"),
+    reg("yabs ~ g2", dat2, "mz"),
+    reg("yabs ~ g3", dat2, "mz"),
+    reg("yabs ~ g4", dat2, "mz"),
+    reg("yrabs ~ g1", dat2, "mz"),
+    reg("yrabs ~ g2", dat2, "mz"),
+    reg("yrabs ~ g3", dat2, "mz"),
+    reg("yrabs ~ g4", dat2, "mz"),
+    reg("yabs ~ g1 + cm", dat2, "mz"),
+    reg("yabs ~ g2 + cm", dat2, "mz"),
+    reg("yabs ~ g3 + cm", dat2, "mz"),
+    reg("yabs ~ g4 + cm", dat2, "mz"),
+    reg("cc ~ g1", dat2, "mz"),
+    reg("cc ~ g2", dat2, "mz"),
+    reg("cc ~ g3", dat2, "mz"),
+    reg("cc ~ g4", dat2, "mz"),
+    reg("ccabs ~ g1", dat2, "mz"),
+    reg("ccabs ~ g2", dat2, "mz"),
+    reg("ccabs ~ g3", dat2, "mz"),
+    reg("ccabs ~ g4", dat2, "mz"),
+    reg("cs ~ g1", dat2, "mz"),
+    reg("cs ~ g2", dat2, "mz"),
+    reg("cs ~ g3", dat2, "mz"),
+    reg("cs ~ g4", dat2, "mz"),
+    reg("csabs ~ g1", dat2, "mz"),
+    reg("csabs ~ g2", dat2, "mz"),
+    reg("csabs ~ g3", dat2, "mz"),
+    reg("csabs ~ g4", dat2, "mz"),
+    reg("cs2 ~ g1", dat2, "mz"),
+    reg("cs2 ~ g2", dat2, "mz"),
+    reg("cs2 ~ g3", dat2, "mz"),
+    reg("cs2 ~ g4", dat2, "mz"),
+    reg("ccabs ~ g1 + cm", dat2, "mz"),
+    reg("ccabs ~ g2 + cm", dat2, "mz"),
+    reg("ccabs ~ g3 + cm", dat2, "mz"),
+    reg("ccabs ~ g4 + cm", dat2, "mz")
+)
+o %>% mutate(log10p=-log10(p)) %>% select(what, f, log10p)
+```
+
+Observations
+
+- The MZ difference model does not work for the difference of `y`
+- The MZ difference model works for continuous traits as expected when using the **absolute** difference in the trait (`yabs`). i.e.
+    - The main effect does not associate with MZ dif
+    - The GxE effect does associate with MZ dif
+    - The variance effect does associate with MZ dif
+- The MZ difference model does not work for the difference of the binary trait `cc`
+- Using the absolute difference in the binary trait (`ccabs`)
+    - Picks up the GxE effect and the variance effect
+    - **But it also picks up the main effect which it is not supposed to do**
+
+
+
+
+```{r}
+reg2 <- function(f, dat, what) {
+    fo <- as.formula(f)
+    o <- glm(fo, data=dat, family="binomial") %>% summary() %>% 
+        coef() %>% 
+        as.data.frame() %>%
+        slice_tail(n=1) %>%
+        mutate(what=what, f=f)
+    rownames(o) <- NULL
+    names(o) <- c("est", "se", "t", "p", "what", "f")
+    o %>% select(what, f, est, se, p)
+}
+o <- bind_rows(
+    reg2("ccabs ~ g1", dat2, "mz"),
+    reg2("ccabs ~ g2", dat2, "mz"),
+    reg2("ccabs ~ g3", dat2, "mz"),
+    reg2("ccabs ~ g4", dat2, "mz"),
+    reg2("ccabs ~ g1 + cm", dat2, "mz"),
+    reg2("ccabs ~ g2 + cm", dat2, "mz"),
+    reg2("ccabs ~ g3 + cm", dat2, "mz"),
+    reg2("ccabs ~ g4 + cm", dat2, "mz")
+)
+o %>% select(what, f, p) %>% mutate(p=-log10(p))
+
+```
+
+
+```{r}
+summary(lm(y ~ f * g2, dat))
+tapply(dat$y, dat$g2, var)
+tapply(dat$y, dat$g3, var)
+tapply(dat2$yabs, dat2$g2, mean)
+tapply(dat2$yabs, dat2$g3, mean)
+
+```

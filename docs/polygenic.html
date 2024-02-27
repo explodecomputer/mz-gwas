@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.549">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Gibran Hemani">
+
+<title>Polygenic component of the sensitivity to the environment</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="polygenic_files/libs/clipboard/clipboard.min.js"></script>
+<script src="polygenic_files/libs/quarto-html/quarto.js"></script>
+<script src="polygenic_files/libs/quarto-html/popper.min.js"></script>
+<script src="polygenic_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="polygenic_files/libs/quarto-html/anchor.min.js"></script>
+<link href="polygenic_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="polygenic_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="polygenic_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="polygenic_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="polygenic_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Polygenic component of the sensitivity to the environment</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Gibran Hemani </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ieugwasr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>API: public: http://gwas-api.mrcieu.ac.uk/</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>here() starts at /Users/gh13047/repo/mz-gwas</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'data.table'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:dplyr':
+
+    between, first, last</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>generate_vid <span class="ot">&lt;-</span> <span class="cf">function</span>(d, <span class="at">ea =</span> <span class="st">"ea"</span>, <span class="at">nea =</span> <span class="st">"nea"</span>, <span class="at">eaf =</span> <span class="st">"eaf"</span>, <span class="at">beta =</span> <span class="st">"beta"</span>, <span class="at">rsid =</span> <span class="st">"rsid"</span>, <span class="at">chr =</span> <span class="st">"chr"</span>, <span class="at">position =</span> <span class="st">"position"</span>) {</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  toflip <span class="ot">&lt;-</span> d[[ea]] <span class="sc">&gt;</span> d[[nea]]</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  d[[eaf]][toflip] <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> d[[eaf]][toflip]</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  d[[beta]][toflip] <span class="ot">&lt;-</span> d[[beta]][toflip] <span class="sc">*</span> <span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  temp <span class="ot">&lt;-</span> d[[nea]][toflip]</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  d[[nea]][toflip] <span class="ot">&lt;-</span> d[[ea]][toflip]</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  d[[ea]][toflip] <span class="ot">&lt;-</span> temp</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  d[[<span class="st">"rsido"</span>]] <span class="ot">&lt;-</span> d[[rsid]]</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  d[[rsid]] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(d[[chr]], <span class="st">":"</span>, d[[position]], <span class="st">"_"</span>, <span class="fu">strtrim</span>(d[[ea]], <span class="dv">5</span>), <span class="st">"_"</span>, <span class="fu">strtrim</span>(d[[nea]], <span class="dv">5</span>))</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  d</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>anxss <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"Anxiety_M1_adults_forFUMA.txt.gz"</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>anxss<span class="sc">$</span>A1 <span class="ot">&lt;-</span> <span class="fu">toupper</span>(anxss<span class="sc">$</span>A1)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>anxss<span class="sc">$</span>A2 <span class="ot">&lt;-</span> <span class="fu">toupper</span>(anxss<span class="sc">$</span>A2)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>anxss <span class="ot">&lt;-</span> <span class="fu">generate_vid</span>(anxss, <span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"MAF"</span>, <span class="st">"BETA"</span>, <span class="st">"SNP"</span>, <span class="st">"chr"</span>, <span class="st">"pos"</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>depss <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"Depressionk_M1_forFUMA.txt.gz"</span>))</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>depss<span class="sc">$</span>A1 <span class="ot">&lt;-</span> <span class="fu">toupper</span>(depss<span class="sc">$</span>A1)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>depss<span class="sc">$</span>A2 <span class="ot">&lt;-</span> <span class="fu">toupper</span>(depss<span class="sc">$</span>A2)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>depss <span class="ot">&lt;-</span> <span class="fu">generate_vid</span>(depss, <span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"MAF"</span>, <span class="st">"BETA"</span>, <span class="st">"SNP"</span>, <span class="st">"chr"</span>, <span class="st">"pos"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>depkss <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"Depressionk_M1_child_forFUMA.txt.gz"</span>))</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>depkss<span class="sc">$</span>A1 <span class="ot">&lt;-</span> <span class="fu">toupper</span>(depkss<span class="sc">$</span>A1)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>depkss<span class="sc">$</span>A2 <span class="ot">&lt;-</span> <span class="fu">toupper</span>(depkss<span class="sc">$</span>A2)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>depkss <span class="ot">&lt;-</span> <span class="fu">generate_vid</span>(depkss, <span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"MAF"</span>, <span class="st">"BETA"</span>, <span class="st">"SNP"</span>, <span class="st">"chr"</span>, <span class="st">"pos"</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>depass <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"Depressionk_M1_adults_forFUMA.txt.gz"</span>))</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>depass<span class="sc">$</span>A1 <span class="ot">&lt;-</span> <span class="fu">toupper</span>(depass<span class="sc">$</span>A1)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>depass<span class="sc">$</span>A2 <span class="ot">&lt;-</span> <span class="fu">toupper</span>(depass<span class="sc">$</span>A2)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>depass <span class="ot">&lt;-</span> <span class="fu">generate_vid</span>(depass, <span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"MAF"</span>, <span class="st">"BETA"</span>, <span class="st">"SNP"</span>, <span class="st">"chr"</span>, <span class="st">"pos"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>anxth <span class="ot">&lt;-</span> <span class="fu">tophits</span>(<span class="st">"ukb-b-18336"</span>) <span class="sc">%&gt;%</span> <span class="fu">generate_vid</span>()</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>depsnps <span class="ot">&lt;-</span> <span class="fu">scan</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"depsnps.txt"</span>), <span class="at">what=</span><span class="st">"character"</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>anxdep <span class="ot">&lt;-</span> <span class="fu">associations</span>(depsnps, <span class="st">"ebi-a-GCST90038651"</span>) <span class="sc">%&gt;%</span> <span class="fu">generate_vid</span>()</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>anxdep2 <span class="ot">&lt;-</span> <span class="fu">associations</span>(depsnps, <span class="st">"ukb-b-18336"</span>) <span class="sc">%&gt;%</span> <span class="fu">generate_vid</span>()</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>depdep <span class="ot">&lt;-</span> <span class="fu">associations</span>(depsnps, <span class="st">"ebi-a-GCST005902"</span>) <span class="sc">%&gt;%</span> <span class="fu">generate_vid</span>()</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(depdep<span class="sc">$</span>p)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.151332</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>depth <span class="ot">&lt;-</span> <span class="fu">tophits</span>(<span class="st">"ebi-a-GCST005902"</span>) <span class="sc">%&gt;%</span> <span class="fu">generate_vid</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>anxth</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 13
+         p      n  position chr        se     beta id    rsid  ea    nea     eaf
+     &lt;dbl&gt;  &lt;dbl&gt;     &lt;int&gt; &lt;chr&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;
+1 2.90e-10 460702  73655821 1     6.67e-4 -0.00421 ukb-… 1:73… A     G     0.498
+2 2.00e-11 460702  32379383 6     9.92e-4 -0.00666 ukb-… 6:32… A     G     0.129
+3 1.20e-14 460702  30195038 6     9.00e-4  0.00694 ukb-… 6:30… G     T     0.837
+4 2.30e- 8 460702  11409171 9     6.94e-4 -0.00388 ukb-… 9:11… C     T     0.638
+5 1.5 e- 9 460702 104014935 14    7.06e-4 -0.00426 ukb-… 14:1… G     T     0.344
+6 2.20e-10 460702  59827231 20    9.71e-4  0.00616 ukb-… 20:5… C     G     0.180
+# ℹ 2 more variables: trait &lt;chr&gt;, rsido &lt;chr&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>temp1 <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(depdep, depss, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"rsid"</span><span class="ot">=</span><span class="st">"SNP"</span>))</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp1, <span class="fu">aes</span>(<span class="at">x=</span>beta, <span class="at">y=</span>BETA)) <span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>BETA<span class="fl">-1.96</span><span class="sc">*</span>SE, <span class="at">ymax=</span>BETA<span class="fl">+1.96</span><span class="sc">*</span>SE), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin=</span>beta<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">xmax=</span>beta<span class="fl">+1.96</span><span class="sc">*</span>se), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Population-based main effect estimate"</span>, <span class="at">y=</span><span class="st">"MZ difference effect estimate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="polygenic_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">here</span>(<span class="st">"images"</span>, <span class="st">"depression_main_mz.pdf"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Saving 7 x 5 in image
+`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(BETA <span class="sc">~</span> beta, <span class="at">data=</span>temp1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BETA ~ beta, data = temp1)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.034890 -0.010653  0.000392  0.011581  0.030117 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept) 0.0001388  0.0015681   0.089  0.92967   
+beta        0.8388733  0.2644866   3.172  0.00205 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.01528 on 93 degrees of freedom
+Multiple R-squared:  0.09761,   Adjusted R-squared:  0.08791 
+F-statistic: 10.06 on 1 and 93 DF,  p-value: 0.002053</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(BETA <span class="sc">~</span> beta, <span class="at">data=</span>temp1 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(p <span class="sc">&lt;</span> <span class="fl">0.05</span><span class="sc">/</span><span class="fu">nrow</span>(temp1))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BETA ~ beta, data = temp1 %&gt;% filter(p &lt; 0.05/nrow(temp1)))
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.034465 -0.011367  0.001435  0.010594  0.031117 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept) 0.0002472  0.0017563   0.141  0.88845   
+beta        0.7404270  0.2784736   2.659  0.00968 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.015 on 71 degrees of freedom
+Multiple R-squared:  0.09056,   Adjusted R-squared:  0.07775 
+F-statistic:  7.07 on 1 and 71 DF,  p-value: 0.009682</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>temp2 <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(depth, depss, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"rsid"</span><span class="ot">=</span><span class="st">"SNP"</span>))</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp2 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(p <span class="sc">&lt;</span> <span class="fl">0.05</span><span class="sc">/</span><span class="fu">nrow</span>(temp2)), <span class="fu">aes</span>(<span class="at">x=</span>beta, <span class="at">y=</span>BETA)) <span class="sc">+</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>BETA<span class="fl">-1.96</span><span class="sc">*</span>SE, <span class="at">ymax=</span>BETA<span class="fl">+1.96</span><span class="sc">*</span>SE), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin=</span>beta<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">xmax=</span>beta<span class="fl">+1.96</span><span class="sc">*</span>se), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Population-based main effect estimate"</span>, <span class="at">y=</span><span class="st">"MZ difference effect estimate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="polygenic_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(BETA <span class="sc">~</span> beta, <span class="at">data=</span>temp2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BETA ~ beta, data = temp2)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.024829 -0.008428  0.003165  0.005155  0.035587 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept) -0.003298   0.004186  -0.788  0.44602   
+beta         1.530116   0.446151   3.430  0.00499 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.01564 on 12 degrees of freedom
+Multiple R-squared:  0.495, Adjusted R-squared:  0.4529 
+F-statistic: 11.76 on 1 and 12 DF,  p-value: 0.004989</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>temp3 <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(anxdep, anxss, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"rsid"</span><span class="ot">=</span><span class="st">"SNP"</span>))</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp3, <span class="fu">aes</span>(<span class="at">x=</span>beta, <span class="at">y=</span>BETA)) <span class="sc">+</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>BETA<span class="fl">-1.96</span><span class="sc">*</span>SE, <span class="at">ymax=</span>BETA<span class="fl">+1.96</span><span class="sc">*</span>SE), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin=</span>beta<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">xmax=</span>beta<span class="fl">+1.96</span><span class="sc">*</span>se), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Population-based main effect estimate"</span>, <span class="at">y=</span><span class="st">"MZ difference effect estimate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="polygenic_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(BETA <span class="sc">~</span> beta, <span class="at">data=</span>temp3))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BETA ~ beta, data = temp3)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.071978 -0.017844  0.002309  0.018670  0.044896 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept) -0.0001664  0.0023017  -0.072   0.9425   
+beta         2.9605618  0.9565606   3.095   0.0026 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.02243 on 93 degrees of freedom
+Multiple R-squared:  0.09338,   Adjusted R-squared:  0.08363 
+F-statistic: 9.579 on 1 and 93 DF,  p-value: 0.0026</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>temp4 <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(anxth, anxss, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"rsid"</span><span class="ot">=</span><span class="st">"SNP"</span>))</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp4, <span class="fu">aes</span>(<span class="at">x=</span>beta, <span class="at">y=</span>BETA)) <span class="sc">+</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>BETA<span class="fl">-1.96</span><span class="sc">*</span>SE, <span class="at">ymax=</span>BETA<span class="fl">+1.96</span><span class="sc">*</span>SE), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin=</span>beta<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">xmax=</span>beta<span class="fl">+1.96</span><span class="sc">*</span>se), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Population-based main effect estimate"</span>, <span class="at">y=</span><span class="st">"MZ difference effect estimate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="polygenic_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(BETA <span class="sc">~</span> beta, <span class="at">data=</span>temp4))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BETA ~ beta, data = temp4)
+
+Residuals:
+       1        2        3        4        5        6 
+-0.03699  0.04362  0.05577  0.03293 -0.04438 -0.05096 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept) -0.01951    0.02276  -0.857    0.440
+beta        -5.18008    4.13832  -1.252    0.279
+
+Residual standard error: 0.05485 on 4 degrees of freedom
+Multiple R-squared:  0.2815,    Adjusted R-squared:  0.1018 
+F-statistic: 1.567 on 1 and 4 DF,  p-value: 0.2789</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>eduth <span class="ot">&lt;-</span> <span class="fu">tophits</span>(<span class="st">"ieu-a-1001"</span>) <span class="sc">%&gt;%</span> <span class="fu">generate_vid</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>temp5 <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(eduth, anxss, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"rsid"</span><span class="ot">=</span><span class="st">"SNP"</span>))</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp5, <span class="fu">aes</span>(<span class="at">x=</span>beta, <span class="at">y=</span>BETA)) <span class="sc">+</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>BETA<span class="fl">-1.96</span><span class="sc">*</span>SE, <span class="at">ymax=</span>BETA<span class="fl">+1.96</span><span class="sc">*</span>SE), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin=</span>beta<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">xmax=</span>beta<span class="fl">+1.96</span><span class="sc">*</span>se), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Population-based main effect estimate"</span>, <span class="at">y=</span><span class="st">"MZ difference effect estimate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="polygenic_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(BETA <span class="sc">~</span> beta, <span class="at">data=</span>temp5))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BETA ~ beta, data = temp5)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.074692 -0.019401 -0.001492  0.015346  0.073523 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept) 0.006444   0.003636   1.772   0.0807 .
+beta        0.190499   0.196940   0.967   0.3367  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.03105 on 71 degrees of freedom
+Multiple R-squared:  0.01301,   Adjusted R-squared:  -0.0008944 
+F-statistic: 0.9357 on 1 and 71 DF,  p-value: 0.3367</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>temp6 <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(eduth, depss, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"rsid"</span><span class="ot">=</span><span class="st">"SNP"</span>))</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp6, <span class="fu">aes</span>(<span class="at">x=</span>beta, <span class="at">y=</span>BETA)) <span class="sc">+</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>BETA<span class="fl">-1.96</span><span class="sc">*</span>SE, <span class="at">ymax=</span>BETA<span class="fl">+1.96</span><span class="sc">*</span>SE), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin=</span>beta<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">xmax=</span>beta<span class="fl">+1.96</span><span class="sc">*</span>se), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Population-based main effect estimate"</span>, <span class="at">y=</span><span class="st">"MZ difference effect estimate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="polygenic_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(BETA <span class="sc">~</span> beta, <span class="at">data=</span>temp6))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BETA ~ beta, data = temp6)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.091591 -0.013133  0.003326  0.008972  0.051410 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)  0.001780   0.002607   0.683    0.497
+beta        -0.046232   0.141217  -0.327    0.744
+
+Residual standard error: 0.02227 on 71 degrees of freedom
+Multiple R-squared:  0.001507,  Adjusted R-squared:  -0.01256 
+F-statistic: 0.1072 on 1 and 71 DF,  p-value: 0.7443</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>bmith <span class="ot">&lt;-</span> <span class="fu">tophits</span>(<span class="st">"ukb-b-19953"</span>) <span class="sc">%&gt;%</span> <span class="fu">generate_vid</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>temp7 <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(bmith, depss, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"rsid"</span><span class="ot">=</span><span class="st">"SNP"</span>))</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp7, <span class="fu">aes</span>(<span class="at">x=</span>beta, <span class="at">y=</span>BETA)) <span class="sc">+</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>BETA<span class="fl">-1.96</span><span class="sc">*</span>SE, <span class="at">ymax=</span>BETA<span class="fl">+1.96</span><span class="sc">*</span>SE), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin=</span>beta<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">xmax=</span>beta<span class="fl">+1.96</span><span class="sc">*</span>se), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Population-based main effect estimate"</span>, <span class="at">y=</span><span class="st">"MZ difference effect estimate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="polygenic_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(BETA <span class="sc">~</span> beta, <span class="at">data=</span>temp7))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BETA ~ beta, data = temp7)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.074235 -0.011216 -0.001673  0.011467  0.141435 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept) 0.0001789  0.0009814   0.182    0.855
+beta        0.0637307  0.0487335   1.308    0.192
+
+Residual standard error: 0.02096 on 455 degrees of freedom
+Multiple R-squared:  0.003745,  Adjusted R-squared:  0.001555 
+F-statistic:  1.71 on 1 and 455 DF,  p-value: 0.1916</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>temp8 <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(bmith, anxss, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"rsid"</span><span class="ot">=</span><span class="st">"SNP"</span>))</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp8, <span class="fu">aes</span>(<span class="at">x=</span>beta, <span class="at">y=</span>BETA)) <span class="sc">+</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>BETA<span class="fl">-1.96</span><span class="sc">*</span>SE, <span class="at">ymax=</span>BETA<span class="fl">+1.96</span><span class="sc">*</span>SE), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin=</span>beta<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">xmax=</span>beta<span class="fl">+1.96</span><span class="sc">*</span>se), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Population-based main effect estimate"</span>, <span class="at">y=</span><span class="st">"MZ difference effect estimate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="polygenic_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(BETA <span class="sc">~</span> beta, <span class="at">data=</span>temp8))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BETA ~ beta, data = temp8)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.13800 -0.01982  0.00008  0.01862  0.25525 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept) 0.001572   0.001555   1.011    0.313
+beta        0.054107   0.077218   0.701    0.484
+
+Residual standard error: 0.03318 on 454 degrees of freedom
+Multiple R-squared:  0.00108,   Adjusted R-squared:  -0.00112 
+F-statistic: 0.491 on 1 and 454 DF,  p-value: 0.4838</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>temp9 <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(depdep, depkss, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"rsid"</span><span class="ot">=</span><span class="st">"SNP"</span>))</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp9 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(p <span class="sc">&lt;</span> <span class="fl">0.05</span><span class="sc">/</span><span class="fu">nrow</span>(temp2)), <span class="fu">aes</span>(<span class="at">x=</span>beta, <span class="at">y=</span>BETA)) <span class="sc">+</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>BETA<span class="fl">-1.96</span><span class="sc">*</span>SE, <span class="at">ymax=</span>BETA<span class="fl">+1.96</span><span class="sc">*</span>SE), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin=</span>beta<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">xmax=</span>beta<span class="fl">+1.96</span><span class="sc">*</span>se), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Population-based main effect estimate"</span>, <span class="at">y=</span><span class="st">"MZ difference effect estimate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="polygenic_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(BETA <span class="sc">~</span> beta, <span class="at">data=</span>temp9))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BETA ~ beta, data = temp9)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.048522 -0.012639 -0.001613  0.014527  0.041084 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept) -0.001341   0.002098  -0.640    0.524
+beta         0.356331   0.353788   1.007    0.316
+
+Residual standard error: 0.02044 on 93 degrees of freedom
+Multiple R-squared:  0.01079,   Adjusted R-squared:  0.0001535 
+F-statistic: 1.014 on 1 and 93 DF,  p-value: 0.3165</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>temp10 <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(depdep, depass, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"rsid"</span><span class="ot">=</span><span class="st">"SNP"</span>))</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp10 <span class="sc">%&gt;%</span> <span class="fu">filter</span>(p <span class="sc">&lt;</span> <span class="fl">0.05</span><span class="sc">/</span><span class="fu">nrow</span>(temp2)), <span class="fu">aes</span>(<span class="at">x=</span>beta, <span class="at">y=</span>BETA)) <span class="sc">+</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>BETA<span class="fl">-1.96</span><span class="sc">*</span>SE, <span class="at">ymax=</span>BETA<span class="fl">+1.96</span><span class="sc">*</span>SE), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin=</span>beta<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">xmax=</span>beta<span class="fl">+1.96</span><span class="sc">*</span>se), <span class="at">colour=</span><span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Population-based main effect estimate"</span>, <span class="at">y=</span><span class="st">"MZ difference effect estimate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="polygenic_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(BETA <span class="sc">~</span> beta, <span class="at">data=</span>temp10))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BETA ~ beta, data = temp10)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.037081 -0.011888 -0.001486  0.012117  0.047957 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 0.003151   0.001741   1.810   0.0735 .  
+beta        1.584112   0.293578   5.396 5.17e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.01696 on 93 degrees of freedom
+Multiple R-squared:  0.2384,    Adjusted R-squared:  0.2302 
+F-statistic: 29.12 on 1 and 93 DF,  p-value: 5.175e-07</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>temp109 <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>    temp9 <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">trait=</span><span class="st">"child depression"</span>),</span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>    temp10 <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">trait=</span><span class="st">"adult depression"</span>)</span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(BETA <span class="sc">~</span> beta <span class="sc">*</span> trait, <span class="at">data=</span>temp109))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = BETA ~ beta * trait, data = temp109)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.048522 -0.012400 -0.001549  0.014145  0.047957 
+
+Coefficients:
+                            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                 0.003151   0.001927   1.635  0.10378    
+beta                        1.584112   0.325080   4.873 2.35e-06 ***
+traitchild depression      -0.004492   0.002726  -1.648  0.10102    
+beta:traitchild depression -1.227781   0.459732  -2.671  0.00824 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.01878 on 186 degrees of freedom
+Multiple R-squared:  0.1288,    Adjusted R-squared:  0.1148 
+F-statistic:  9.17 on 3 and 186 DF,  p-value: 1.089e-05</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp109, <span class="fu">aes</span>(<span class="at">x=</span>beta, <span class="at">y=</span>BETA)) <span class="sc">+</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>BETA<span class="fl">-1.96</span><span class="sc">*</span>SE, <span class="at">ymax=</span>BETA<span class="fl">+1.96</span><span class="sc">*</span>SE), <span class="at">colour=</span><span class="st">"grey"</span>, <span class="at">alpha=</span><span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin=</span>beta<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">xmax=</span>beta<span class="fl">+1.96</span><span class="sc">*</span>se), <span class="at">colour=</span><span class="st">"grey"</span>, <span class="at">alpha=</span><span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">colour=</span>trait), <span class="at">alpha=</span><span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>, <span class="fu">aes</span>(<span class="at">colour=</span>trait), <span class="at">se=</span><span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Population-based main effect estimate"</span>, <span class="at">y=</span><span class="st">"MZ difference effect estimate"</span>, <span class="at">colour=</span><span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="polygenic_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp109, <span class="fu">aes</span>(<span class="at">x=</span>beta, <span class="at">y=</span>BETA)) <span class="sc">+</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>BETA<span class="fl">-1.96</span><span class="sc">*</span>SE, <span class="at">ymax=</span>BETA<span class="fl">+1.96</span><span class="sc">*</span>SE), <span class="at">colour=</span><span class="st">"grey"</span>, <span class="at">alpha=</span><span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin=</span>beta<span class="fl">-1.96</span><span class="sc">*</span>se, <span class="at">xmax=</span>beta<span class="fl">+1.96</span><span class="sc">*</span>se), <span class="at">colour=</span><span class="st">"grey"</span>, <span class="at">alpha=</span><span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">colour=</span>trait), <span class="at">alpha=</span><span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>, <span class="fu">aes</span>(<span class="at">colour=</span>trait), <span class="at">se=</span><span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a><span class="fu">facet_grid</span>(. <span class="sc">~</span> trait) <span class="sc">+</span></span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Population-based main effect estimate"</span>, <span class="at">y=</span><span class="st">"MZ difference effect estimate"</span>, <span class="at">colour=</span><span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a><span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="polygenic_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="sensitivity-simulations" class="level2">
+<h2 class="anchored" data-anchor-id="sensitivity-simulations">Sensitivity simulations</h2>
+<p>Check that mean effects can’t influence MZ dif effects</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">fid =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>(n<span class="sc">/</span><span class="dv">2</span>), <span class="at">each=</span><span class="dv">2</span>), <span class="co"># family id</span></span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, n<span class="sc">/</span><span class="dv">2</span>),</span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">g1 =</span> <span class="fu">rbinom</span>(n<span class="sc">/</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="fl">0.4</span>) <span class="sc">%&gt;%</span> <span class="fu">rep</span>(., <span class="at">each=</span><span class="dv">2</span>),</span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">g2 =</span> <span class="fu">rbinom</span>(n<span class="sc">/</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="fl">0.4</span>) <span class="sc">%&gt;%</span> <span class="fu">rep</span>(., <span class="at">each=</span><span class="dv">2</span>),</span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">f =</span> <span class="fu">rnorm</span>(n<span class="sc">/</span><span class="dv">2</span>) <span class="sc">%&gt;%</span> <span class="fu">rep</span>(., <span class="at">each=</span><span class="dv">2</span>),</span>
+<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> g1 <span class="sc">+</span> f <span class="sc">+</span> f <span class="sc">*</span> g2 <span class="sc">+</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb73-10"><a href="#cb73-10" aria-hidden="true" tabindex="-1"></a>dat2 <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(fid) <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="at">g1 =</span> g1[<span class="dv">1</span>], <span class="at">g2 =</span> g2[<span class="dv">1</span>], <span class="at">y =</span> y[<span class="dv">1</span>]<span class="sc">-</span>y[<span class="dv">2</span>], <span class="at">yabs=</span><span class="fu">abs</span>(y))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(y <span class="sc">~</span> g1, <span class="at">data=</span>dat))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = y ~ g1, data = dat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-12.3483  -1.3154   0.0032   1.3090  11.3591 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 0.002635   0.010468   0.252    0.801    
+g1          0.989710   0.009902  99.950   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 2.168 on 99998 degrees of freedom
+Multiple R-squared:  0.09083,   Adjusted R-squared:  0.09082 
+F-statistic:  9990 on 1 and 99998 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(y <span class="sc">~</span> g2, <span class="at">data=</span>dat))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = y ~ g2, data = dat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-13.1338  -1.4121  -0.0031   1.4079  12.1912 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.796691   0.010971   72.62   &lt;2e-16 ***
+g2          -0.004255   0.010384   -0.41    0.682    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 2.274 on 99998 degrees of freedom
+Multiple R-squared:  1.679e-06, Adjusted R-squared:  -8.321e-06 
+F-statistic: 0.1679 on 1 and 99998 DF,  p-value: 0.6819</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(y <span class="sc">~</span> g1, <span class="at">data=</span>dat2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = y ~ g1, data = dat2)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-6.4318 -0.9486  0.0001  0.9528  5.8927 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)  
+(Intercept)  0.013675   0.009669   1.414   0.1573  
+g1          -0.016323   0.009147  -1.785   0.0743 .
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.416 on 49998 degrees of freedom
+Multiple R-squared:  6.37e-05,  Adjusted R-squared:  4.37e-05 
+F-statistic: 3.185 on 1 and 49998 DF,  p-value: 0.07433</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(y <span class="sc">~</span> g2, <span class="at">data=</span>dat2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = y ~ g2, data = dat2)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-6.4205 -0.9500 -0.0005  0.9517  5.8891 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept) -0.0005124  0.0096628  -0.053    0.958
+g2           0.0014381  0.0091458   0.157    0.875
+
+Residual standard error: 1.416 on 49998 degrees of freedom
+Multiple R-squared:  4.945e-07, Adjusted R-squared:  -1.951e-05 
+F-statistic: 0.02472 on 1 and 49998 DF,  p-value: 0.8751</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(yabs <span class="sc">~</span> g1, <span class="at">data=</span>dat2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = yabs ~ g1, data = dat2)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.1304 -0.6801 -0.1781  0.5031  5.2876 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  1.130528   0.005837  193.68   &lt;2e-16 ***
+g1          -0.002097   0.005522   -0.38    0.704    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.8548 on 49998 degrees of freedom
+Multiple R-squared:  2.885e-06, Adjusted R-squared:  -1.712e-05 
+F-statistic: 0.1442 on 1 and 49998 DF,  p-value: 0.7041</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(yabs <span class="sc">~</span> g2, <span class="at">data=</span>dat2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = yabs ~ g2, data = dat2)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.1333 -0.6799 -0.1781  0.5021  5.2845 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 1.125665   0.005833 192.974   &lt;2e-16 ***
+g2          0.003994   0.005521   0.723    0.469    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.8548 on 49998 degrees of freedom
+Multiple R-squared:  1.047e-05, Adjusted R-squared:  -9.532e-06 
+F-statistic: 0.5234 on 1 and 49998 DF,  p-value: 0.4694</code></pre>
+</div>
+</div>
+<section id="binary-traits" class="level3">
+<h3 class="anchored" data-anchor-id="binary-traits">Binary traits</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100000</span></span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">fid =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>(n<span class="sc">/</span><span class="dv">2</span>), <span class="at">each=</span><span class="dv">2</span>), <span class="co"># family id</span></span>
+<span id="cb86-4"><a href="#cb86-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, n<span class="sc">/</span><span class="dv">2</span>),</span>
+<span id="cb86-5"><a href="#cb86-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">g1 =</span> <span class="fu">rbinom</span>(n<span class="sc">/</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="fl">0.4</span>) <span class="sc">%&gt;%</span> <span class="fu">rep</span>(., <span class="at">each=</span><span class="dv">2</span>),</span>
+<span id="cb86-6"><a href="#cb86-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">g2 =</span> <span class="fu">rbinom</span>(n<span class="sc">/</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="fl">0.4</span>) <span class="sc">%&gt;%</span> <span class="fu">rep</span>(., <span class="at">each=</span><span class="dv">2</span>),</span>
+<span id="cb86-7"><a href="#cb86-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">g3 =</span> <span class="fu">rbinom</span>(n<span class="sc">/</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="fl">0.4</span>) <span class="sc">%&gt;%</span> <span class="fu">rep</span>(., <span class="at">each=</span><span class="dv">2</span>),</span>
+<span id="cb86-8"><a href="#cb86-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">g4 =</span> <span class="fu">rbinom</span>(n<span class="sc">/</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="fl">0.4</span>) <span class="sc">%&gt;%</span> <span class="fu">rep</span>(., <span class="at">each=</span><span class="dv">2</span>),</span>
+<span id="cb86-9"><a href="#cb86-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">f =</span> <span class="fu">rnorm</span>(n),</span>
+<span id="cb86-10"><a href="#cb86-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">v =</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, g3),</span>
+<span id="cb86-11"><a href="#cb86-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> g1 <span class="sc">+</span> f <span class="sc">+</span> f <span class="sc">*</span> <span class="fu">drop</span>(<span class="fu">scale</span>(g2)) <span class="sc">+</span> v <span class="sc">+</span> <span class="fu">rnorm</span>(n),</span>
+<span id="cb86-12"><a href="#cb86-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">cc =</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, <span class="fu">plogis</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">+</span> y)),</span>
+<span id="cb86-13"><a href="#cb86-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">cs =</span> <span class="fu">drop</span>(<span class="fu">scale</span>(cc))</span>
+<span id="cb86-14"><a href="#cb86-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb86-15"><a href="#cb86-15" aria-hidden="true" tabindex="-1"></a>dat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 100,000 × 11
+     fid    id    g1    g2    g3    g4       f      v      y    cc     cs
+   &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;  &lt;dbl&gt;
+ 1     1     1     1     0     1     0  0.509   0.822  1.74      0 -0.693
+ 2     1     2     1     0     1     0 -0.185   0.729  0.201     0 -0.693
+ 3     2     1     1     0     0     1  0.0292  0      0.840     0 -0.693
+ 4     2     2     1     0     0     1 -0.480   0      1.20      0 -0.693
+ 5     3     1     0     1     1     2 -0.629   0.720 -1.10      0 -0.693
+ 6     3     2     0     1     1     2 -1.54   -1.29  -3.84      0 -0.693
+ 7     4     1     2     1     1     0  1.52    0.972  4.09      0 -0.693
+ 8     4     2     2     1     1     0 -0.454   0.914  1.63      1  1.44 
+ 9     5     1     1     0     0     0 -1.26    0      0.301     0 -0.693
+10     5     2     1     0     0     0 -1.82    0      1.26      1  1.44 
+# ℹ 99,990 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="fu">mean</span>(cc))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  `mean(cc)`
+       &lt;dbl&gt;
+1      0.325</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">%&gt;%</span> <span class="fu">summarise</span>(<span class="fu">mean</span>(cs))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  `mean(cs)`
+       &lt;dbl&gt;
+1   3.45e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>dat2 <span class="ot">&lt;-</span> dat <span class="sc">%&gt;%</span> </span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(fid) <span class="sc">%&gt;%</span> </span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(</span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">g1 =</span> g1[<span class="dv">1</span>], </span>
+<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">g2 =</span> g2[<span class="dv">1</span>], </span>
+<span id="cb92-6"><a href="#cb92-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">g3 =</span> g3[<span class="dv">1</span>], </span>
+<span id="cb92-7"><a href="#cb92-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">g4 =</span> g4[<span class="dv">1</span>], </span>
+<span id="cb92-8"><a href="#cb92-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> y[<span class="dv">1</span>]<span class="sc">-</span>y[<span class="dv">2</span>], </span>
+<span id="cb92-9"><a href="#cb92-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">yabs=</span><span class="fu">abs</span>(y), </span>
+<span id="cb92-10"><a href="#cb92-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">cc=</span>cc[<span class="dv">1</span>]<span class="sc">-</span>cc[<span class="dv">2</span>], </span>
+<span id="cb92-11"><a href="#cb92-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">cm =</span> <span class="fu">mean</span>(cc),</span>
+<span id="cb92-12"><a href="#cb92-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">ccabs=</span><span class="fu">abs</span>(cc),</span>
+<span id="cb92-13"><a href="#cb92-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">cs=</span>cs[<span class="dv">1</span>]<span class="sc">-</span>cs[<span class="dv">2</span>], </span>
+<span id="cb92-14"><a href="#cb92-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">csabs=</span><span class="fu">abs</span>(cs)</span>
+<span id="cb92-15"><a href="#cb92-15" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> <span class="cf">function</span>(f, dat, what) {</span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a>    fo <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(f)</span>
+<span id="cb93-3"><a href="#cb93-3" aria-hidden="true" tabindex="-1"></a>    o <span class="ot">&lt;-</span> <span class="fu">lm</span>(fo, <span class="at">data=</span>dat) <span class="sc">%&gt;%</span> <span class="fu">summary</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb93-4"><a href="#cb93-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">coef</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb93-5"><a href="#cb93-5" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb93-6"><a href="#cb93-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">slice_tail</span>(<span class="at">n=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb93-7"><a href="#cb93-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">what=</span>what, <span class="at">f=</span>f)</span>
+<span id="cb93-8"><a href="#cb93-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames</span>(o) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb93-9"><a href="#cb93-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(o) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"est"</span>, <span class="st">"se"</span>, <span class="st">"t"</span>, <span class="st">"p"</span>, <span class="st">"what"</span>, <span class="st">"f"</span>)</span>
+<span id="cb93-10"><a href="#cb93-10" aria-hidden="true" tabindex="-1"></a>    o <span class="sc">%&gt;%</span> <span class="fu">select</span>(what, f, est, se, p)</span>
+<span id="cb93-11"><a href="#cb93-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb93-12"><a href="#cb93-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb93-13"><a href="#cb93-13" aria-hidden="true" tabindex="-1"></a>o <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb93-14"><a href="#cb93-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g1"</span>, dat, <span class="st">"pop"</span>),</span>
+<span id="cb93-15"><a href="#cb93-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g2"</span>, dat, <span class="st">"pop"</span>),</span>
+<span id="cb93-16"><a href="#cb93-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g3"</span>, dat, <span class="st">"pop"</span>),</span>
+<span id="cb93-17"><a href="#cb93-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g4"</span>, dat, <span class="st">"pop"</span>),</span>
+<span id="cb93-18"><a href="#cb93-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"y ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-19"><a href="#cb93-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"y ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-20"><a href="#cb93-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"y ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-21"><a href="#cb93-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"y ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-22"><a href="#cb93-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-23"><a href="#cb93-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-24"><a href="#cb93-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-25"><a href="#cb93-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-26"><a href="#cb93-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g1 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-27"><a href="#cb93-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g2 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-28"><a href="#cb93-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g3 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-29"><a href="#cb93-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"yabs ~ g4 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-30"><a href="#cb93-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-31"><a href="#cb93-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-32"><a href="#cb93-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-33"><a href="#cb93-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cc ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-34"><a href="#cb93-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-35"><a href="#cb93-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-36"><a href="#cb93-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-37"><a href="#cb93-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-38"><a href="#cb93-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cs ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-39"><a href="#cb93-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cs ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-40"><a href="#cb93-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cs ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-41"><a href="#cb93-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"cs ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-42"><a href="#cb93-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"csabs ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-43"><a href="#cb93-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"csabs ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-44"><a href="#cb93-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"csabs ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-45"><a href="#cb93-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"csabs ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-46"><a href="#cb93-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g1 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-47"><a href="#cb93-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g2 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-48"><a href="#cb93-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g3 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb93-49"><a href="#cb93-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg</span>(<span class="st">"ccabs ~ g4 + cm"</span>, dat2, <span class="st">"mz"</span>)</span>
+<span id="cb93-50"><a href="#cb93-50" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb93-51"><a href="#cb93-51" aria-hidden="true" tabindex="-1"></a>o <span class="sc">%&gt;%</span> <span class="fu">select</span>(what, f, p) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">p=</span><span class="sc">-</span><span class="fu">log10</span>(p))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   what               f            p
+1   pop         cc ~ g1          Inf
+2   pop         cc ~ g2  58.43302808
+3   pop         cc ~ g3  18.43151552
+4   pop         cc ~ g4   0.42633766
+5    mz          y ~ g1   0.33069207
+6    mz          y ~ g2   0.25213408
+7    mz          y ~ g3   0.08306523
+8    mz          y ~ g4   0.65298755
+9    mz       yabs ~ g1   0.57855808
+10   mz       yabs ~ g2          Inf
+11   mz       yabs ~ g3          Inf
+12   mz       yabs ~ g4   0.51666487
+13   mz  yabs ~ g1 + cm   1.48678533
+14   mz  yabs ~ g2 + cm   1.81218525
+15   mz  yabs ~ g3 + cm   1.53792545
+16   mz  yabs ~ g4 + cm   1.49388597
+17   mz         cc ~ g1   0.30240856
+18   mz         cc ~ g2   0.19959149
+19   mz         cc ~ g3   0.01051857
+20   mz         cc ~ g4   0.30916599
+21   mz      ccabs ~ g1 165.72874974
+22   mz      ccabs ~ g2  25.65030670
+23   mz      ccabs ~ g3   7.85990340
+24   mz      ccabs ~ g4   0.08478606
+25   mz         cs ~ g1   0.30240856
+26   mz         cs ~ g2   0.19959149
+27   mz         cs ~ g3   0.01051857
+28   mz         cs ~ g4   0.30916599
+29   mz      csabs ~ g1 165.72874974
+30   mz      csabs ~ g2  25.65030670
+31   mz      csabs ~ g3   7.85990340
+32   mz      csabs ~ g4   0.08478606
+33   mz ccabs ~ g1 + cm   0.09373939
+34   mz ccabs ~ g2 + cm   0.13887321
+35   mz ccabs ~ g3 + cm   0.12893951
+36   mz ccabs ~ g4 + cm   0.12825229</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>reg2 <span class="ot">&lt;-</span> <span class="cf">function</span>(f, dat, what) {</span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>    fo <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(f)</span>
+<span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a>    o <span class="ot">&lt;-</span> <span class="fu">glm</span>(fo, <span class="at">data=</span>dat, <span class="at">family=</span><span class="st">"binomial"</span>) <span class="sc">%&gt;%</span> <span class="fu">summary</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb95-4"><a href="#cb95-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">coef</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb95-5"><a href="#cb95-5" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb95-6"><a href="#cb95-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">slice_tail</span>(<span class="at">n=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb95-7"><a href="#cb95-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">what=</span>what, <span class="at">f=</span>f)</span>
+<span id="cb95-8"><a href="#cb95-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames</span>(o) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb95-9"><a href="#cb95-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(o) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"est"</span>, <span class="st">"se"</span>, <span class="st">"t"</span>, <span class="st">"p"</span>, <span class="st">"what"</span>, <span class="st">"f"</span>)</span>
+<span id="cb95-10"><a href="#cb95-10" aria-hidden="true" tabindex="-1"></a>    o <span class="sc">%&gt;%</span> <span class="fu">select</span>(what, f, est, se, p)</span>
+<span id="cb95-11"><a href="#cb95-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb95-12"><a href="#cb95-12" aria-hidden="true" tabindex="-1"></a>o <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb95-13"><a href="#cb95-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g1"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb95-14"><a href="#cb95-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g2"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb95-15"><a href="#cb95-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g3"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb95-16"><a href="#cb95-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g4"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb95-17"><a href="#cb95-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g1 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb95-18"><a href="#cb95-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g2 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb95-19"><a href="#cb95-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g3 + cm"</span>, dat2, <span class="st">"mz"</span>),</span>
+<span id="cb95-20"><a href="#cb95-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reg2</span>(<span class="st">"ccabs ~ g4 + cm"</span>, dat2, <span class="st">"mz"</span>)</span>
+<span id="cb95-21"><a href="#cb95-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb95-22"><a href="#cb95-22" aria-hidden="true" tabindex="-1"></a>o <span class="sc">%&gt;%</span> <span class="fu">select</span>(what, f, p) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">p=</span><span class="sc">-</span><span class="fu">log10</span>(p))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  what               f            p
+1   mz      ccabs ~ g1 162.73707485
+2   mz      ccabs ~ g2  25.58392692
+3   mz      ccabs ~ g3   7.85463513
+4   mz      ccabs ~ g4   0.08478830
+5   mz ccabs ~ g1 + cm   0.09254787
+6   mz ccabs ~ g2 + cm   0.13866574
+7   mz ccabs ~ g3 + cm   0.12891898
+8   mz ccabs ~ g4 + cm   0.12825725</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(y <span class="sc">~</span> f <span class="sc">*</span> g2, dat))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = y ~ f * g2, data = dat)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-9.0935 -1.0271 -0.0124  1.0235  9.9411 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.791934   0.007812 101.369   &lt;2e-16 ***
+f           -0.149350   0.007834 -19.064   &lt;2e-16 ***
+g2           0.003105   0.007349   0.423    0.673    
+f:g2         1.435411   0.007350 195.284   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.615 on 99996 degrees of freedom
+Multiple R-squared:  0.4357,    Adjusted R-squared:  0.4356 
+F-statistic: 2.573e+04 on 3 and 99996 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(dat<span class="sc">$</span>y, dat<span class="sc">$</span>g2, var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        0         1         2 
+ 2.668084  4.242434 10.051014 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(dat<span class="sc">$</span>y, dat<span class="sc">$</span>g3, var)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       0        1        2 
+3.531598 4.496673 7.456955 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(dat2<span class="sc">$</span>yabs, dat2<span class="sc">$</span>g2, mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       0        1        2 
+1.603249 2.153963 3.495430 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(dat2<span class="sc">$</span>yabs, dat2<span class="sc">$</span>g3, mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       0        1        2 
+1.840900 2.172290 2.933147 </code></pre>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

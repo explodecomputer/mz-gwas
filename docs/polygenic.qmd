@@ -1,0 +1,420 @@
+---
+title: Polygenic component of the sensitivity to the environment
+author: Gibran Hemani
+execute: 
+  cache: true
+---
+
+```{r}
+library(ieugwasr)
+library(here)
+library(dplyr)
+library(ggplot2)
+library(data.table)
+generate_vid <- function(d, ea = "ea", nea = "nea", eaf = "eaf", beta = "beta", rsid = "rsid", chr = "chr", position = "position") {
+  toflip <- d[[ea]] > d[[nea]]
+  d[[eaf]][toflip] <- 1 - d[[eaf]][toflip]
+  d[[beta]][toflip] <- d[[beta]][toflip] * -1
+  temp <- d[[nea]][toflip]
+  d[[nea]][toflip] <- d[[ea]][toflip]
+  d[[ea]][toflip] <- temp
+  d[["rsido"]] <- d[[rsid]]
+  d[[rsid]] <- paste0(d[[chr]], ":", d[[position]], "_", strtrim(d[[ea]], 5), "_", strtrim(d[[nea]], 5))
+  d
+}
+```
+
+```{r}
+anxss <- fread(here("data", "Anxiety_M1_adults_forFUMA.txt.gz"))
+anxss$A1 <- toupper(anxss$A1)
+anxss$A2 <- toupper(anxss$A2)
+anxss <- generate_vid(anxss, "A1", "A2", "MAF", "BETA", "SNP", "chr", "pos")
+depss <- fread(here("data", "Depressionk_M1_forFUMA.txt.gz"))
+depss$A1 <- toupper(depss$A1)
+depss$A2 <- toupper(depss$A2)
+depss <- generate_vid(depss, "A1", "A2", "MAF", "BETA", "SNP", "chr", "pos")
+```
+
+```{r}
+depkss <- fread(here("data", "Depressionk_M1_child_forFUMA.txt.gz"))
+depkss$A1 <- toupper(depkss$A1)
+depkss$A2 <- toupper(depkss$A2)
+depkss <- generate_vid(depkss, "A1", "A2", "MAF", "BETA", "SNP", "chr", "pos")
+
+depass <- fread(here("data", "Depressionk_M1_adults_forFUMA.txt.gz"))
+depass$A1 <- toupper(depass$A1)
+depass$A2 <- toupper(depass$A2)
+depass <- generate_vid(depass, "A1", "A2", "MAF", "BETA", "SNP", "chr", "pos")
+```
+
+
+```{r}
+anxth <- tophits("ukb-b-18336") %>% generate_vid()
+depsnps <- scan(here("data", "depsnps.txt"), what="character")
+anxdep <- associations(depsnps, "ebi-a-GCST90038651") %>% generate_vid()
+anxdep2 <- associations(depsnps, "ukb-b-18336") %>% generate_vid()
+depdep <- associations(depsnps, "ebi-a-GCST005902") %>% generate_vid()
+max(depdep$p)
+depth <- tophits("ebi-a-GCST005902") %>% generate_vid()
+```
+
+```{r}
+anxth
+```
+
+```{r}
+temp1 <- inner_join(depdep, depss, by=c("rsid"="SNP"))
+ggplot(temp1, aes(x=beta, y=BETA)) +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE), colour="grey") +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se), colour="grey") +
+geom_point() +
+geom_smooth(method="lm") +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate")
+ggsave(here("images", "depression_main_mz.pdf"))
+```
+
+```{r}
+summary(lm(BETA ~ beta, data=temp1))
+summary(lm(BETA ~ beta, data=temp1 %>% filter(p < 0.05/nrow(temp1))))
+```
+
+```{r}
+temp2 <- inner_join(depth, depss, by=c("rsid"="SNP"))
+ggplot(temp2 %>% filter(p < 0.05/nrow(temp2)), aes(x=beta, y=BETA)) +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE), colour="grey") +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se), colour="grey") +
+geom_point() +
+geom_smooth(method="lm") +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate")
+```
+
+```{r}
+summary(lm(BETA ~ beta, data=temp2))
+```
+
+
+```{r}
+temp3 <- inner_join(anxdep, anxss, by=c("rsid"="SNP"))
+ggplot(temp3, aes(x=beta, y=BETA)) +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE), colour="grey") +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se), colour="grey") +
+geom_point() +
+geom_smooth(method="lm") +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate")
+```
+
+```{r}
+summary(lm(BETA ~ beta, data=temp3))
+```
+
+```{r}
+temp4 <- inner_join(anxth, anxss, by=c("rsid"="SNP"))
+ggplot(temp4, aes(x=beta, y=BETA)) +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE), colour="grey") +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se), colour="grey") +
+geom_point() +
+geom_smooth(method="lm") +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate")
+```
+
+
+```{r}
+summary(lm(BETA ~ beta, data=temp4))
+```
+
+
+```{r}
+eduth <- tophits("ieu-a-1001") %>% generate_vid()
+```
+
+
+```{r}
+temp5 <- inner_join(eduth, anxss, by=c("rsid"="SNP"))
+ggplot(temp5, aes(x=beta, y=BETA)) +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE), colour="grey") +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se), colour="grey") +
+geom_point() +
+geom_smooth(method="lm") +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate")
+```
+
+
+```{r}
+summary(lm(BETA ~ beta, data=temp5))
+```
+
+
+```{r}
+temp6 <- inner_join(eduth, depss, by=c("rsid"="SNP"))
+ggplot(temp6, aes(x=beta, y=BETA)) +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE), colour="grey") +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se), colour="grey") +
+geom_point() +
+geom_smooth(method="lm") +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate")
+```
+
+```{r}
+summary(lm(BETA ~ beta, data=temp6))
+```
+
+
+```{r}
+bmith <- tophits("ukb-b-19953") %>% generate_vid()
+```
+
+
+```{r}
+temp7 <- inner_join(bmith, depss, by=c("rsid"="SNP"))
+ggplot(temp7, aes(x=beta, y=BETA)) +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE), colour="grey") +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se), colour="grey") +
+geom_point() +
+geom_smooth(method="lm") +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate")
+```
+
+```{r}
+summary(lm(BETA ~ beta, data=temp7))
+```
+
+```{r}
+temp8 <- inner_join(bmith, anxss, by=c("rsid"="SNP"))
+ggplot(temp8, aes(x=beta, y=BETA)) +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE), colour="grey") +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se), colour="grey") +
+geom_point() +
+geom_smooth(method="lm") +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate")
+```
+
+```{r}
+summary(lm(BETA ~ beta, data=temp8))
+```
+
+```{r}
+temp9 <- inner_join(depdep, depkss, by=c("rsid"="SNP"))
+ggplot(temp9 %>% filter(p < 0.05/nrow(temp2)), aes(x=beta, y=BETA)) +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE), colour="grey") +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se), colour="grey") +
+geom_point() +
+geom_smooth(method="lm") +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate")
+```
+
+```{r}
+summary(lm(BETA ~ beta, data=temp9))
+```
+
+```{r}
+temp10 <- inner_join(depdep, depass, by=c("rsid"="SNP"))
+ggplot(temp10 %>% filter(p < 0.05/nrow(temp2)), aes(x=beta, y=BETA)) +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE), colour="grey") +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se), colour="grey") +
+geom_point() +
+geom_smooth(method="lm") +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate")
+```
+
+```{r}
+summary(lm(BETA ~ beta, data=temp10))
+```
+
+```{r}
+temp109 <- bind_rows(
+    temp9 %>% mutate(trait="child depression"),
+    temp10 %>% mutate(trait="adult depression")
+)
+```
+
+```{r}
+summary(lm(BETA ~ beta * trait, data=temp109))
+```
+
+```{r}
+ggplot(temp109, aes(x=beta, y=BETA)) +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE), colour="grey", alpha=0.4) +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se), colour="grey", alpha=0.4) +
+geom_point(aes(colour=trait), alpha=0.4) +
+geom_smooth(method="lm", aes(colour=trait), se=FALSE) +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate", colour="")
+```
+
+```{r}
+ggplot(temp109, aes(x=beta, y=BETA)) +
+geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE), colour="grey", alpha=0.4) +
+geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se), colour="grey", alpha=0.4) +
+geom_point(aes(colour=trait), alpha=0.4) +
+geom_smooth(method="lm", aes(colour=trait), se=TRUE) +
+facet_grid(. ~ trait) +
+labs(x="Population-based main effect estimate", y="MZ difference effect estimate", colour="") +
+theme(legend.position="none")
+```
+
+```{r}
+```
+
+## Sensitivity simulations
+
+Check that mean effects can't influence MZ dif effects
+
+```{r}
+n <- 100000
+dat <- tibble(
+    fid = rep(1:(n/2), each=2), # family id
+    id = rep(1:2, n/2),
+    g1 = rbinom(n/2, 2, 0.4) %>% rep(., each=2),
+    g2 = rbinom(n/2, 2, 0.4) %>% rep(., each=2),
+    f = rnorm(n/2) %>% rep(., each=2),
+    y = g1 + f + f * g2 + rnorm(n)
+)
+dat2 <- dat %>% group_by(fid) %>% summarise(g1 = g1[1], g2 = g2[1], y = y[1]-y[2], yabs=abs(y))
+```
+
+
+```{r}
+summary(lm(y ~ g1, data=dat))
+summary(lm(y ~ g2, data=dat))
+```
+
+```{r}
+summary(lm(y ~ g1, data=dat2))
+summary(lm(y ~ g2, data=dat2))
+```
+
+
+```{r}
+summary(lm(yabs ~ g1, data=dat2))
+summary(lm(yabs ~ g2, data=dat2))
+```
+
+
+### Binary traits
+
+```{r}
+n <- 100000
+dat <- tibble(
+    fid = rep(1:(n/2), each=2), # family id
+    id = rep(1:2, n/2),
+    g1 = rbinom(n/2, 2, 0.4) %>% rep(., each=2),
+    g2 = rbinom(n/2, 2, 0.4) %>% rep(., each=2),
+    g3 = rbinom(n/2, 2, 0.4) %>% rep(., each=2),
+    g4 = rbinom(n/2, 2, 0.4) %>% rep(., each=2),
+    f = rnorm(n),
+    v = rnorm(n, 0, g3),
+    y = g1 + f + f * drop(scale(g2)) + v + rnorm(n),
+    cc = rbinom(n, 1, plogis(-2 + y)),
+    cs = drop(scale(cc))
+)
+dat
+
+dat %>% summarise(mean(cc))
+dat %>% summarise(mean(cs))
+dat2 <- dat %>% 
+    group_by(fid) %>% 
+    summarise(
+        g1 = g1[1], 
+        g2 = g2[1], 
+        g3 = g3[1], 
+        g4 = g4[1], 
+        y = y[1]-y[2], 
+        yabs=abs(y), 
+        cc=cc[1]-cc[2], 
+        cm = mean(cc),
+        ccabs=abs(cc),
+        cs=cs[1]-cs[2], 
+        csabs=abs(cs)
+    )
+```
+
+
+```{r}
+reg <- function(f, dat, what) {
+    fo <- as.formula(f)
+    o <- lm(fo, data=dat) %>% summary() %>% 
+        coef() %>% 
+        as.data.frame() %>%
+        slice_tail(n=1) %>%
+        mutate(what=what, f=f)
+    rownames(o) <- NULL
+    names(o) <- c("est", "se", "t", "p", "what", "f")
+    o %>% select(what, f, est, se, p)
+}
+
+o <- bind_rows(
+    reg("cc ~ g1", dat, "pop"),
+    reg("cc ~ g2", dat, "pop"),
+    reg("cc ~ g3", dat, "pop"),
+    reg("cc ~ g4", dat, "pop"),
+    reg("y ~ g1", dat2, "mz"),
+    reg("y ~ g2", dat2, "mz"),
+    reg("y ~ g3", dat2, "mz"),
+    reg("y ~ g4", dat2, "mz"),
+    reg("yabs ~ g1", dat2, "mz"),
+    reg("yabs ~ g2", dat2, "mz"),
+    reg("yabs ~ g3", dat2, "mz"),
+    reg("yabs ~ g4", dat2, "mz"),
+    reg("yabs ~ g1 + cm", dat2, "mz"),
+    reg("yabs ~ g2 + cm", dat2, "mz"),
+    reg("yabs ~ g3 + cm", dat2, "mz"),
+    reg("yabs ~ g4 + cm", dat2, "mz"),
+    reg("cc ~ g1", dat2, "mz"),
+    reg("cc ~ g2", dat2, "mz"),
+    reg("cc ~ g3", dat2, "mz"),
+    reg("cc ~ g4", dat2, "mz"),
+    reg("ccabs ~ g1", dat2, "mz"),
+    reg("ccabs ~ g2", dat2, "mz"),
+    reg("ccabs ~ g3", dat2, "mz"),
+    reg("ccabs ~ g4", dat2, "mz"),
+    reg("cs ~ g1", dat2, "mz"),
+    reg("cs ~ g2", dat2, "mz"),
+    reg("cs ~ g3", dat2, "mz"),
+    reg("cs ~ g4", dat2, "mz"),
+    reg("csabs ~ g1", dat2, "mz"),
+    reg("csabs ~ g2", dat2, "mz"),
+    reg("csabs ~ g3", dat2, "mz"),
+    reg("csabs ~ g4", dat2, "mz"),
+    reg("ccabs ~ g1 + cm", dat2, "mz"),
+    reg("ccabs ~ g2 + cm", dat2, "mz"),
+    reg("ccabs ~ g3 + cm", dat2, "mz"),
+    reg("ccabs ~ g4 + cm", dat2, "mz")
+)
+o %>% select(what, f, p) %>% mutate(p=-log10(p))
+```
+
+
+```{r}
+reg2 <- function(f, dat, what) {
+    fo <- as.formula(f)
+    o <- glm(fo, data=dat, family="binomial") %>% summary() %>% 
+        coef() %>% 
+        as.data.frame() %>%
+        slice_tail(n=1) %>%
+        mutate(what=what, f=f)
+    rownames(o) <- NULL
+    names(o) <- c("est", "se", "t", "p", "what", "f")
+    o %>% select(what, f, est, se, p)
+}
+o <- bind_rows(
+    reg2("ccabs ~ g1", dat2, "mz"),
+    reg2("ccabs ~ g2", dat2, "mz"),
+    reg2("ccabs ~ g3", dat2, "mz"),
+    reg2("ccabs ~ g4", dat2, "mz"),
+    reg2("ccabs ~ g1 + cm", dat2, "mz"),
+    reg2("ccabs ~ g2 + cm", dat2, "mz"),
+    reg2("ccabs ~ g3 + cm", dat2, "mz"),
+    reg2("ccabs ~ g4 + cm", dat2, "mz")
+)
+o %>% select(what, f, p) %>% mutate(p=-log10(p))
+
+```
+
+
+```{r}
+summary(lm(y ~ f * g2, dat))
+tapply(dat$y, dat$g2, var)
+tapply(dat$y, dat$g3, var)
+tapply(dat2$yabs, dat2$g2, mean)
+tapply(dat2$yabs, dat2$g3, mean)
+
+```
