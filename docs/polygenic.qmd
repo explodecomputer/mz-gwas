@@ -3,6 +3,9 @@ title: Polygenic component of the sensitivity to the environment
 author: Gibran Hemani
 execute: 
   cache: true
+format:
+  html:
+    embed-resources: true
 ---
 
 ```{r}
