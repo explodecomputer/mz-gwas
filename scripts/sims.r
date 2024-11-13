@@ -95,7 +95,7 @@ mutate(method = case_when(method == "drm" ~ paste0("Population, n = ", n/1000, "
 ggplot(., aes(x=h2, y=fval)) +
   geom_line(aes(colour=method)) +
   geom_point(aes(colour=method)) +
-  labs(y="vQTL F-statistic (log10 scale)", x="Narrow sense heritability", colour="Design") +
+  labs(y="vQTL F-statistic (log scale)", x="Narrow sense heritability", colour="Design") +
   scale_colour_brewer(type="qual") +
   scale_y_log10()
 p2
