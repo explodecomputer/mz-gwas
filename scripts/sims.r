@@ -4,8 +4,9 @@ library(tidyr)
 library(simulateGP)
 library(here)
 library(parallel)
-mc.cores <- 2
-
+library(furrr)
+mc.cores <- 60
+plan("multicore", workers = 60)
 
 sim_pop <- function(n, beta1, beta2, af, h2)
 {
@@ -59,37 +60,11 @@ param <- expand.grid(
     beta2 = 0.115,
     h2 = seq(0.05, 0.95, by=0.05),
     af = 0.3,
-    rep=1:1000
+    rep=1:10000
 )
 dim(param)
 
-res1 <- mclapply(1:nrow(param), function(i)
-  {
-  a <- do.call(sim_mz, param[i,] %>% select(-c(rep)))
-  if(any(is.na(a$y1)) | any(is.na(a$y2)))
-  {
-    return(NULL)
-  }
-  bind_rows(
-    test_mz(a$g, a$y1, a$y2),
-    test_drm(a$g, a$y1)
-  ) %>%
-    bind_cols(., param[i,])
-}, mc.cores=mc.cores) %>%
-  bind_rows()
-
-p1 <- res1 %>%
-group_by(beta2, method) %>%
-summarise(pow = sum(pval < 5e-8)/n()) %>%
-mutate(method = case_when(method == "drm" ~ "Population", TRUE ~ "MZ")) %>%
-ggplot(., aes(x=beta2, y=pow)) +
-  geom_line(aes(colour=method)) +
-  geom_point(aes(colour=method)) +
-  labs(y="vQTL discovery power", x="Narrow sense heritability", colour="Design")
-p1
-ggsave(p1, file=here("images/pow_equaln.pdf"))
-
-res2 <- mclapply(1:nrow(param), function(i)
+res <- future_map(1:nrow(param), function(i)
   {
   a1 <- do.call(sim_mz, param[i,] %>% mutate(n=10000) %>% select(-c(rep)))
   a2 <- do.call(sim_mz, param[i,] %>% mutate(n=500000) %>% select(-c(rep)))
@@ -104,46 +79,39 @@ res2 <- mclapply(1:nrow(param), function(i)
     test_drm(a3$g, a3$y1)
   ) %>%
     bind_cols(., param[i,])
-}, mc.cores=mc.cores) %>%
+}, .progress=TRUE) %>%
   bind_rows()
 
-param <- expand.grid(
-    beta1 = 0,
-    beta2 = 0.115,
-    h2 = seq(0.05, 0.95, by=0.05),
-    af = 0.3,
-    rep=1001:10000
-)
-dim(param)
+save(res, file=here("scripts/mzpowersim.rdata"))
 
-res2a <- mclapply(1:nrow(param), function(i)
-  {
-  a1 <- do.call(sim_mz, param[i,] %>% mutate(n=10000) %>% select(-c(rep)))
-  a3 <- do.call(sim_mz, param[i,] %>% mutate(n=20000) %>% select(-c(rep)))
-  if(any(is.na(a1$y1)) | any(is.na(a1$y2)) | any(is.na(a3$y1)) | any(is.na(a3$y2)))
-  {
-    return(NULL)
-  }
-  bind_rows(
-    test_mz(a1$g, a1$y1, a1$y2),
-    test_drm(a3$g, a3$y1)
-  ) %>%
-    bind_cols(., param[i,])
-}, mc.cores=mc.cores) %>%
-  bind_rows()
+##
 
-p2 <- bind_rows(res2, res2a) %>%
+load(here("scripts/mzpowersim.rdata"))
+
+p2 <- bind_rows(res) %>%
 group_by(h2, method, n) %>%
-summarise(pow = sum(pval < 5e-2)/n()) %>%
+summarise(pow = sum(pval < 5e-8)/n(), fval=mean(fval)) %>%
 mutate(method = case_when(method == "drm" ~ paste0("Population, n = ", n/1000, "k"), TRUE ~ paste0("MZ pairs, n = ", n/1000, "k"))) %>%
-ggplot(., aes(x=h2, y=pow)) +
+ggplot(., aes(x=h2, y=fval)) +
   geom_line(aes(colour=method)) +
   geom_point(aes(colour=method)) +
+  labs(y="vQTL F-statistic (log10 scale)", x="Narrow sense heritability", colour="Design") +
+  scale_colour_brewer(type="qual") +
+  scale_y_log10()
+p2
+ggsave(p2, file=here("images/pow_diffn.pdf"), height=6, width=11)
+
+p2 <- bind_rows(res2, res2a) %>%
+filter(n != 500000) %>%
+mutate(n2 = case_when(n == 10000 ~ 20000, TRUE ~ 20000)) %>%
+mutate(method = case_when(method == "drm" ~ paste0("Population, n = ", n/1000, "k"), TRUE ~ paste0("MZ pairs, n = ", n/1000, "k"))) %>%
+filter(h2 < 0.9) %>%
+ggplot(., aes(x=h2, y=fval)) +
+  geom_smooth(aes(colour=method)) +
   labs(y="vQTL discovery power", x="Narrow sense heritability", colour="Design") +
   scale_colour_brewer(type="qual")
 p2
 ggsave(p2, file=here("images/pow_diffn.pdf"), height=6, width=11)
-
 
 
 sim_mz2 <- function(g, beta1, beta2, h2)

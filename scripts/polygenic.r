@@ -85,6 +85,16 @@ main_hits <- bind_rows(neur, ple, dep, well, asd, adhd)
 
 save(main_hits, vardat, file=here("data", "polygenic.rda"))
 
+# Trait Nsnp Reference
+# Wellbeing 3 https://www.nature.com/articles/ng.3552
+# ADHD 27 https://www.nature.com/articles/s41588-022-01285-8
+# ASD 12 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6454898/
+# Neuroticism 112 https://pubmed.ncbi.nlm.nih.gov/29892013/
+# PLE 217 https://pubmed.ncbi.nlm.nih.gov/35396580/
+# Depression 101 https://pubmed.ncbi.nlm.nih.gov/29662059/
+# Educational attainment 74 https://pubmed.ncbi.nlm.nih.gov/27225129/
+# BMI 458 https://www.medrxiv.org/content/10.1101/2021.06.28.21259622v1
+
 
 ## Analysis
 
