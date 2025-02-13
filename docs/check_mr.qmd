@@ -1,0 +1,178 @@
+---
+title: "Polygenic burden and environmental sensitivity"
+author: Gibran Hemani
+execute: 
+  cache: true
+format:
+  html:
+    embed-resources: true
+---
+
+## Background
+
+We performed MR analysis of main effects on variance effects for a trait, where the variance effects come from the MZ GWAS and the main effects come from published studies. We found that higher main effects for depression associated with larger MZ variance effects for depression in adults but not in children.
+
+How to interpret this?
+
+- This association can arise under the null when only the main effects were present (no variance effects)
+- Higher polygenic burden leads to greater environmental sensitivity through GxE interactions
+
+## Simulation 
+
+### Data generating model
+
+Simulate a polygenic score for MZ pair $i$ as
+
+$$
+s_i = \sum_{k=1}^M \beta_k g_{ik}
+$$
+
+where $g_{ik}$ is the genotype of individual $i$ at SNP $k$ and $\beta_k$ is the effect size of SNP $k$. The genotype is simulated as $g_{ik} \sim \text{Binomial}(2, 0.5)$. The polygenic score is then scaled to have mean 0.5 and variance 0.2.
+
+Then generate the depression liability for MZ pair $i$ individual $j$
+
+$$
+l_{ij} = \beta_1 s_i + \beta_2 s_i e_{ij} + \epsilon_{ij}
+$$
+
+A depression binary variable is then generated as
+
+$$
+y_{ij} = \text{Bernoulli}(\text{logit}^{-1}(l_{ij}))
+$$
+
+### Estimation
+
+For each SNP $k$ obtain the effect estimate $\hat{\beta}_k$ from the first individual from each MZ pair. Then estimate the MZ difference effect as
+
+$$
+| l_{i1} - l_{i2} | = \hat{\alpha} + \hat{\beta}_{2k} g_{ik} + \epsilon_{i}
+$$
+
+Simularly $\hat{\beta}_{1k}$ can be estimated through logistic regression of $y_{i1}$ on $g_{i1}$.
+
+## Results
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(simulateGP)
+library(parallel)
+library(furrr)
+plan(multicore, workers=6)
+```
+
+
+```{r}
+nsnp <- 100
+n <- 10000
+beta2 <- 0.1
+h2 <- 0.4
+
+sim <- function(nsnp, n, beta2, h2) {
+  G <- matrix(
+    rbinom(nsnp * n, 2, 0.5),
+    nrow = n,
+    ncol = nsnp
+  )
+  beta1 <- rnorm(nsnp)
+  prs <- scale(G %*% beta1) %>% drop()
+  prs <- prs * 0.2 + 0.5
+  prs[prs < 0] <- 0
+  # v1 <- rnorm(n, 0, beta2 * prs)
+  # v2 <- rnorm(n, 0, beta2 * prs)
+  e1 <- rnorm(n)
+  e2 <- rnorm(n)
+  r1 <- rnorm(n, 0, sqrt(1 - h2))
+  r2 <- rnorm(n, 0, sqrt(1 - h2))
+  l1 <- prs + beta2 * prs * e1 + r1
+  l2 <- prs + beta2 * prs * e2 + r2
+  y1 <- rbinom(n, 1, plogis(l1))
+  y2 <- rbinom(n, 1, plogis(l2))
+  return(list(
+    phen=tibble(y1, y2, l1, l2, prs),
+    beta1 = beta1,
+    G=G
+  ))
+}
+```
+
+
+```{r}
+
+test_logistc <- function(G, y1) {
+  for(i in 1:ncol(G)) {
+    m <- glm(y1 ~ G[,i], family=binomial)$coef[2]
+  }
+}
+
+test_mz <- function(G, y1, y2) {
+  yd1 <- abs(y1-y2)
+  lapply(1:ncol(G), \(i) {
+    fast_assoc(yd1, G[,i]) %>%
+      as_tibble() %>%
+      mutate(method="mzdiff")
+  }) %>%
+    bind_rows()
+}
+```
+
+```{r}
+param <- expand.grid(
+  nsnp = 100,
+  n = 25000,
+  beta2 = c(0, 0, 0, seq(0, 0.2, by=0.02)),
+  h2 = 0.7,
+  rep=1:50
+)
+
+sim_test <- function(nsnp, n, beta2, h2, rep=1) {
+  args <- list(nsnp=nsnp, n=n, beta2=beta2, h2=h2, rep=rep) %>% as_tibble()  
+  a <- sim(nsnp, n, beta2, h2)
+  res <- test_mz(a$G, a$phen$l1, a$phen$l2)
+  mod <- summary(lm(a$beta1 ~ 0 + res$bhat, weight = 1 / res$se^2))
+  args$estimate <- mod$coefficients[1,1]
+  args$se <- mod$coefficients[1,2]
+  args$p <- mod$coefficients[1,4]
+  return(args)
+}
+
+simres <- furrr::future_pmap(param, sim_test, .options=furrr_options(seed=TRUE)) %>%
+  bind_rows()
+saveRDS(simres, file="simres.rds")
+```
+
+
+```{r}
+ggplot(simres, aes(x=beta2, y=estimate)) +
+  geom_point()
+```
+
+
+
+```{r}
+group_by(simres, beta2) %>%
+  summarise(
+    n=n(),
+    mean=mean(estimate),
+    se=mean(se),
+    pow=sum(p < 0.05)/n()
+  ) %>%
+  ggplot(aes(x=beta2, y=pow)) +
+  geom_point() +
+  geom_hline(yintercept=0.05, linetype="dashed")
+```
+
+
+## Summary
+
+- Type I error is well controlled
+- A polygenic GxE interaction is recapitulated by the MR framework of main effects on variance effects
+
+A note on relevance
+
+- This is demonstrating that there are MZ variance effects that are likely undetectable at GWAS significance thresholds but are revealed when hypothesising that there are variance effects at the main effects.
+- It also suggests that if this is GxE then it isn't locus specific, it is an interaction with higher disease burden
+- Showing that this manifests in adults and not in children has implications for the aetiology of disease.
+
+
