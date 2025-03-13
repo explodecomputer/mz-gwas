@@ -166,13 +166,9 @@ group_by(simres, beta2) %>%
 
 ## Summary
 
-- Type I error is well controlled
-- A polygenic GxE interaction is recapitulated by the MR framework of main effects on variance effects
-
-A note on relevance
-
-- This is demonstrating that there are MZ variance effects that are likely undetectable at GWAS significance thresholds but are revealed when hypothesising that there are variance effects at the main effects.
-- It also suggests that if this is GxE then it isn't locus specific, it is an interaction with higher disease burden
-- Showing that this manifests in adults and not in children has implications for the aetiology of disease.
-
+- Type I error is well controlled for this data generating model.
+- The straightforward ‘causal’ interpretation here is that higher disease liability increases environmental sensitivity. That mechanism of environmental sensitivity is that a polygenic GxE interaction is recapitulated by the MR framework of main effects on variance effects
+- This is demonstrating that there are MZ variance effects that are likely undetectable at GWAS significance thresholds but are revealed when hypothesising that there are variance effects at the main effects. Essentially it’s a mechanism to improve power to detect evidence of vQTL
+- It also suggests that if this is GxE then it isn’t locus specific, which is what the GWAS ostensibly does. It is an interaction with a latent genetic risk factor. There could be interesting locus specific vQTLs.
+- Showing that this manifests in adults and not in children makes it a bit more robust and has implications for the aetiology of disease.
 

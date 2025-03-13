@@ -99,7 +99,7 @@ ggplot(., aes(x=h2, y=fval)) +
   scale_colour_brewer(type="qual") +
   scale_y_log10()
 p2
-ggsave(p2, file=here("images/pow_diffn.pdf"), height=6, width=11)
+ggsave(p2, file=here("images/pow_diffn.pdf"), height=3, width=5.5)
 
 p2 <- bind_rows(res2, res2a) %>%
 filter(n != 500000) %>%
@@ -161,12 +161,12 @@ run_simp_mz <- function(param, i)
 	m1 <- test_mz(dat$g1, mzdat$y1, mzdat$y2)
 	m2 <- test_mz(dat$g2, mzdat$y1, mzdat$y2)
 	m3 <- test_mz(dat$g3, mzdat$y1, mzdat$y2)
-	param$drm1[i] <- o1$`Pr(>|t|)`
-	param$drm2[i] <- o2$`Pr(>|t|)`
-	param$drm3[i] <- o3$`Pr(>|t|)`
-	param$mz1[i] <- m1$`Pr(>|t|)`
-	param$mz2[i] <- m2$`Pr(>|t|)`
-	param$mz3[i] <- m3$`Pr(>|t|)`
+	param$drm1[i] <- o1$pval
+	param$drm2[i] <- o2$pval
+	param$drm3[i] <- o3$pval
+	param$mz1[i] <- m1$pval
+	param$mz2[i] <- m2$pval
+	param$mz3[i] <- m3$pval
 	return(param[i,])
 }
 
@@ -201,8 +201,21 @@ p3 <- resmz %>%
   geom_boxplot(aes(fill=as.factor(r1))) +
   scale_fill_brewer(type="seq") +
   facet_grid(. ~ key) +
+  labs(y="vQTL -log10 p under the null", x="LD between tagging\nvariant and causal variant", fill="LD") +
+  theme(legend.position="none")
+p3
+ggsave(p3, file=here("images/inflation.pdf"), height=3, width=5.5)
+
+
+p3 <- resmz %>% 
+  dplyr::select(r1, MZ=mz2, pop=drm2) %>% gather(., "key", "value", MZ, pop) %>%
+  mutate(key = case_when(key == "pop" ~ "Population", TRUE ~ "MZ")) %>%
+  ggplot(., aes(x=r1, y=-log10(value))) +
+  geom_violin(aes(fill=as.factor(r1))) +
+  scale_fill_brewer(type="seq") +
+  facet_grid(. ~ key) +
   labs(y="vQTL -log10 p under the null", x="LD between tagging\nvariant and causal variant", fill="LD")
 p3
-ggsave(p3, file=here("images/inflation.pdf"), height=6, width=11)
+ggsave(p3, file=here("images/inflationv.pdf"), height=3, width=5.5)
 
 save(resmz, res1, res2, res2a, file=here("images/sim.rdata"))

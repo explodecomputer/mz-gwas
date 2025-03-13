@@ -248,10 +248,12 @@ ggplot(temp109, aes(x=beta, y=BETA)) +
 geom_errorbar(aes(ymin=BETA-1.96*SE, ymax=BETA+1.96*SE), colour="grey", alpha=0.4) +
 geom_errorbarh(aes(xmin=beta-1.96*se, xmax=beta+1.96*se), colour="grey", alpha=0.4) +
 geom_point(aes(colour=trait), alpha=0.4) +
+ylim(c(-0.075, 0.075)) +
 geom_smooth(method="lm", aes(colour=trait), se=TRUE) +
 facet_grid(. ~ trait) +
 labs(x="Population-based main effect estimate", y="MZ difference effect estimate", colour="") +
 theme(legend.position="none")
+ggsave(here("images", "figure4.pdf"), width=5, height=5)
 ```
 
 ```{r}
